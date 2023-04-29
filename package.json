@@ -1,0 +1,23 @@
+{
+  "name": "chitchat-backend",
+  "version": "1.0.0",
+  "description": "A simple chat app.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kvchvn/chitchat-backend.git"
+  },
+  "keywords": [
+    "chat"
+  ],
+  "author": "Anton Kachan <aa.kvchvn@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kvchvn/chitchat-backend/issues"
+  },
+  "homepage": "https://github.com/kvchvn/chitchat-backend#readme"
+}
