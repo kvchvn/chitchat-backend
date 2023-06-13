@@ -12,6 +12,15 @@ class UserService {
     return user;
   }
 
+  async getUserByEmail(email: string) {
+    const user = await UserModel.findOne({ email }).exec();
+    if (!user) {
+      throw new NotFoundError({ entity: 'user', params: { email } });
+    }
+
+    return user;
+  }
+
   async createNewUser(userData: User) {
     const user = new UserModel(userData);
     await UserModel.create(user);
