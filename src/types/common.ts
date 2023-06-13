@@ -1,7 +1,10 @@
-export type ErrorResponse = {
-  result: 'error';
-  code: number;
-  data: {
-    message: string;
-  };
+export type AppError = {
+  status: number;
+  message: string;
+  issues?: Record<string, string>;
+};
+
+export type AppErrorSpecified = {
+  entity: 'user' | 'chat';
+  params: Record<string, string>;
 };
