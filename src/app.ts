@@ -1,9 +1,10 @@
 import express from 'express';
-import { StatusCodes } from 'http-status-codes';
 import path from 'path';
-import { REQUEST_NOT_ALLOWED } from './constants/index.ts';
+import { NotFoundError } from './errors/app-error.ts';
+import { errorMiddleware } from './errors/error-middleware.ts';
 import { getDirname } from './helpers/index.ts';
-import { authRouter } from './routers/index.ts';
+import { authRouter } from './resources/auth/auth.router.ts';
+import { userRouter } from './resources/user/user.router.ts';
 
 const __dirname = getDirname(import.meta.url);
 
@@ -11,6 +12,13 @@ export const app = express();
 
 app.use('/static', express.static(path.join(__dirname, '../public')));
 app.use(express.json());
-app.use(authRouter);
+app.use('/auth', authRouter);
+app.use('/users', userRouter);
 
-app.all('*', (_, res) => res.status(StatusCodes.NOT_FOUND).send(REQUEST_NOT_ALLOWED));
+// for rest unsupported requests
+app.use((_req, _res, next) => {
+  const err = new NotFoundError('This endpoint or/and method are not supported.');
+  next(err);
+});
+
+app.use(errorMiddleware);
