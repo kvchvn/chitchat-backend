@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { AnyZodObject, ZodError } from 'zod';
 import { ValidationError } from '../errors';
+import { userIdSchema } from './schemas';
 
 export const validate =
   (schema: AnyZodObject) => async (req: Request, _res: Response, next: NextFunction) => {
@@ -20,3 +21,4 @@ export const validate =
     }
   };
 
+export const validateUserId = () => validate(userIdSchema);
