@@ -4,6 +4,7 @@ dotenv.config();
 import express from 'express';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
+import { usersRouter } from './routers';
 
 const PORT = Number(process.env.PORT) || 5000;
 
@@ -28,6 +29,7 @@ const onConnection = (socket: Socket) => {
 };
 
 io.on('connection', onConnection);
+app.use('/users', usersRouter);
 
 httpServer.listen(PORT, () => {
   console.log('Server is running on port 5000');
