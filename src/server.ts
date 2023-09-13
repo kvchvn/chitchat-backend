@@ -3,7 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 
 const PORT = Number(process.env.PORT) || 5000;
 
@@ -18,9 +18,16 @@ const io = new Server(httpServer, {
 
 app.use(express.json());
 
-io.on('connection', (socket) => {
-  console.log('Socket.io is connected: ', socket.id);
+const onConnection = (socket: Socket) => {
+  console.log('Socket.io server is connected: ', socket.id);
+  // TODO: register handlers here
+
+  socket.on('disconnect', () => {
+    console.log('Socket is disconnected: ', socket.id);
 });
+};
+
+io.on('connection', onConnection);
 
 httpServer.listen(PORT, () => {
   console.log('Server is running on port 5000');
