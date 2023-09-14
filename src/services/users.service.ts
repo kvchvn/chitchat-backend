@@ -35,6 +35,23 @@ class UsersService {
 
   async sendFriendRequest(senderId: string, receiverId: string) {
     try {
+      const isSenderAlreadySentOrGotRequest = Boolean(
+        await prisma.user.findUnique({
+          where: {
+            id: senderId,
+            OR: [
+              { outcomingRequests: { some: { id: receiverId } } },
+              { incomingRequests: { some: { id: receiverId } } },
+              { friends: { some: { id: receiverId } } },
+            ],
+          },
+        })
+      );
+
+      if (isSenderAlreadySentOrGotRequest) {
+        throw new BadRequestError('This friend request is already has been sent or accepted.');
+      }
+
       const updateSender = prisma.user.update({
         where: { id: senderId },
         data: {
