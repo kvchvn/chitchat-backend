@@ -1,15 +1,11 @@
 import { prisma } from '../db';
-import { prismaErrorHandler } from '../errors';
+import { BadRequestError, prismaErrorHandler } from '../errors';
 
 class UsersService {
   async getAllUsersExceptOneself(userId: string) {
     try {
       return await prisma.user.findMany({
-        where: {
-          id: {
-            not: userId,
-          },
-        },
+        where: { id: { not: userId } },
       });
     } catch (err) {
       prismaErrorHandler(err);
@@ -19,11 +15,10 @@ class UsersService {
   async getUserFriendsAndRequests(userId: string) {
     try {
       return await prisma.user.findUnique({
-        where: {
-          id: userId,
-        },
+        where: { id: userId },
         select: {
           friends: true,
+          friendOf: true,
           incomingRequests: true,
           outcomingRequests: true,
         },
@@ -33,7 +28,7 @@ class UsersService {
     }
   }
 
-  async sendFriendRequest(senderId: string, receiverId: string) {
+  async sendFriendRequest({ senderId, receiverId }: { senderId: string; receiverId: string }) {
     try {
       const isSenderAlreadySentOrGotRequest = Boolean(
         await prisma.user.findUnique({
@@ -54,15 +49,11 @@ class UsersService {
 
       const updateSender = prisma.user.update({
         where: { id: senderId },
-        data: {
-          outcomingRequests: { connect: { id: receiverId } },
-        },
+        data: { outcomingRequests: { connect: { id: receiverId } } },
       });
       const updateReceiver = prisma.user.update({
         where: { id: receiverId },
-        data: {
-          incomingRequests: { connect: { id: senderId } },
-        },
+        data: { incomingRequests: { connect: { id: senderId } } },
       });
       return await prisma.$transaction([updateSender, updateReceiver]);
     } catch (err) {
@@ -70,7 +61,7 @@ class UsersService {
     }
   }
 
-  async acceptFriendRequest(senderId: string, receiverId: string) {
+  async acceptFriendRequest({ senderId, receiverId }: { senderId: string; receiverId: string }) {
     try {
       const updateSender = prisma.user.update({
         where: { id: senderId },
@@ -92,19 +83,15 @@ class UsersService {
     }
   }
 
-  async cancelFriendRequest(senderId: string, receiverId: string) {
+  async cancelFriendRequest({ senderId, receiverId }: { senderId: string; receiverId: string }) {
     try {
       const updateSender = prisma.user.update({
         where: { id: senderId },
-        data: {
-          outcomingRequests: { disconnect: { id: receiverId } },
-        },
+        data: { outcomingRequests: { disconnect: { id: receiverId } } },
       });
       const updateReceiver = prisma.user.update({
         where: { id: receiverId },
-        data: {
-          incomingRequests: { disconnect: { id: senderId } },
-        },
+        data: { incomingRequests: { disconnect: { id: senderId } } },
       });
       await prisma.$transaction([updateSender, updateReceiver]);
     } catch (err) {
