@@ -4,7 +4,7 @@ dotenv.config();
 import express from 'express';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
-import { errorHandler } from './errors';
+import { errorHandler, unsupportedRoutesHandler } from './errors';
 import { usersRouter } from './routers';
 
 const PORT = Number(process.env.PORT) || 5000;
@@ -32,6 +32,7 @@ const onConnection = (socket: Socket) => {
 io.on('connection', onConnection);
 
 app.use('/users', usersRouter);
+app.use('/', unsupportedRoutesHandler);
 app.use(errorHandler);
 
 httpServer.listen(PORT, () => {
