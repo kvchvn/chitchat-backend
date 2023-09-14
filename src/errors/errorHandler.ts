@@ -5,6 +5,7 @@ import { AppError } from './appErrors';
 
 export const errorHandler = (err: AppError, _req: Request, res: Response, _next: NextFunction) => {
   const errorResponse: ErrorResponse = {
+    ok: false,
     status: StatusCodes.INTERNAL_SERVER_ERROR,
     message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
   };
