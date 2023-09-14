@@ -1,5 +1,5 @@
 import { isPrismaKnownError } from '../types';
-import { BadRequestError } from './appErrors';
+import { BadRequestError } from './app-errors';
 
 export const prismaErrorHandler = (err: unknown) => {
   const message = `Error when accessing the database [${
