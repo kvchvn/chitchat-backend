@@ -6,8 +6,8 @@ export const userIdSchema = z.object({
   }),
 });
 
-export const friendshipSchema = z.object({
-  params: z.object({
+export const friendRequestSchema = z.object({
+  body: z.object({
     senderId: z.string().cuid(),
     receiverId: z.string().cuid(),
   }),

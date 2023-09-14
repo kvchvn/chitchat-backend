@@ -1,2 +1,2 @@
-export { friendshipSchema, userIdSchema } from './schemas';
+export { friendRequestSchema, userIdSchema } from './schemas';
 export { validate, validateUserId } from './validator';
