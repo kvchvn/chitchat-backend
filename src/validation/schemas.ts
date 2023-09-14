@@ -12,3 +12,18 @@ export const friendRequestSchema = z.object({
     receiverId: z.string().cuid(),
   }),
 });
+
+export const friendResponseSchema = z.object({
+  body: z.object({
+    isPositiveResponse: z.boolean(),
+    senderId: z.string().cuid(),
+    receiverId: z.string().cuid(),
+  }),
+});
+
+export const friendshipBreakingSchema = z.object({
+  body: z.object({
+    userId: z.string().cuid(),
+    userFriendId: z.string().cuid(),
+  }),
+});
