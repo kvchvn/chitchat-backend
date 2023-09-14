@@ -32,6 +32,15 @@ export class BadRequestError extends AppError {
   }
 }
 
+export class MethodNotAllowedError extends AppError {
+  readonly status: number;
+
+  constructor() {
+    super('Method not allowed.');
+    this.status = StatusCodes.METHOD_NOT_ALLOWED;
+  }
+}
+
 export class ValidationError extends AppError {
   readonly status: number;
   readonly issues: string[];
