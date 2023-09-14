@@ -111,6 +111,41 @@ class UsersService {
       prismaErrorHandler(err);
     }
   }
+
+  async removeFromFriends({ userId, userFriendId }: { userId: string; userFriendId: string }) {
+    try {
+      const isUserHasTheFriend = Boolean(
+        await prisma.user.findUnique({
+          where: {
+            id: userId,
+            friends: { some: { id: userFriendId } },
+          },
+        })
+      );
+
+      if (!isUserHasTheFriend) {
+        throw new BadRequestError("There isn't this user, or the user hasn't this friend.");
+      }
+
+      const updateUser = prisma.user.update({
+        where: { id: userId },
+        data: {
+          friends: { disconnect: { id: userFriendId } },
+          friendOf: { disconnect: { id: userFriendId } },
+        },
+      });
+      const updateFriend = prisma.user.update({
+        where: { id: userFriendId },
+        data: {
+          friends: { disconnect: { id: userId } },
+          friendOf: { disconnect: { id: userId } },
+        },
+      });
+      await prisma.$transaction([updateUser, updateFriend]);
+    } catch (err) {
+      prismaErrorHandler(err);
+    }
+  }
 }
 
 export const usersService = new UsersService();
