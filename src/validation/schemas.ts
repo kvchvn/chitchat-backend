@@ -21,7 +21,7 @@ export const friendResponseSchema = z.object({
   }),
 });
 
-export const friendshipBreakingSchema = z.object({
+export const friendRemovingSchema = z.object({
   body: z.object({
     userId: z.string().cuid(),
     userFriendId: z.string().cuid(),
