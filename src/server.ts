@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
@@ -19,6 +20,11 @@ const io = new Server(httpServer, {
 });
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+  })
+);
 
 const onConnection = (socket: Socket) => {
   console.log('Socket.io server is connected: ', socket.id);
