@@ -1,2 +1,3 @@
-export type { Entities, ErrorResponse, SuccessResponse } from './global';
+export type { Entities, UserRelevant } from './global';
 export { isPrismaKnownError } from './guards';
+export { ErrorResponse, GetUsersResponse } from './responses';

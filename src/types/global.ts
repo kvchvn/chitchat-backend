@@ -1,13 +1,11 @@
+import { User } from '@prisma/client';
+
 export type Entities = 'user';
 
-export type ErrorResponse = {
-  ok: false;
-  status: number;
-  message: string;
-  issues?: string[];
+export type UserCounts = {
+  friends: number;
+  incomingRequests: number;
+  outcomingRequests: number;
 };
 
-export type SuccessResponse = {
-  ok: true;
-  data?: unknown;
-};
+export type UserRelevant = Omit<User, 'emailVerified'>;
