@@ -2,27 +2,47 @@ import { prisma } from '../db';
 import { BadRequestError, prismaErrorHandler } from '../errors';
 
 class UsersService {
-  async getAllUsersExceptOneself(userId: string) {
+  async getUsers(userId: string) {
     try {
-      return await prisma.user.findMany({
-        where: { id: { not: userId } },
-      });
-    } catch (err) {
-      prismaErrorHandler(err);
-    }
-  }
+      const selectRequiredFields = {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+      };
 
-  async getUserFriendsAndRequests(userId: string) {
-    try {
-      return await prisma.user.findUnique({
-        where: { id: userId },
+      const getAllUsersExceptOneselfPromise = prisma.user.findMany({
+        where: { id: { not: userId } },
         select: {
-          friends: true,
-          friendOf: true,
-          incomingRequests: true,
-          outcomingRequests: true,
+          ...selectRequiredFields,
+          _count: {
+            select: {
+              friends: { where: { id: userId } },
+              incomingRequests: { where: { id: userId } },
+              outcomingRequests: { where: { id: userId } },
+            },
+          },
         },
       });
+
+      const getFriendsWithRequestsPromise = prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          friends: { select: selectRequiredFields },
+          incomingRequests: { select: selectRequiredFields },
+          outcomingRequests: { select: selectRequiredFields },
+        },
+      });
+
+      const [allUsersExceptOneself, friendsWithRequests] = await prisma.$transaction([
+        getAllUsersExceptOneselfPromise,
+        getFriendsWithRequestsPromise,
+      ]);
+
+      return {
+        allUsersExceptOneself,
+        ...friendsWithRequests,
+      };
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -51,10 +71,12 @@ class UsersService {
         where: { id: senderId },
         data: { outcomingRequests: { connect: { id: receiverId } } },
       });
+
       const updateReceiver = prisma.user.update({
         where: { id: receiverId },
         data: { incomingRequests: { connect: { id: senderId } } },
       });
+
       return await prisma.$transaction([updateSender, updateReceiver]);
     } catch (err) {
       prismaErrorHandler(err);
@@ -70,6 +92,7 @@ class UsersService {
           friends: { connect: { id: receiverId } },
         },
       });
+
       const updateReceiver = prisma.user.update({
         where: { id: receiverId },
         data: {
@@ -77,22 +100,25 @@ class UsersService {
           friends: { connect: { id: senderId } },
         },
       });
+
       await prisma.$transaction([updateSender, updateReceiver]);
     } catch (err) {
       prismaErrorHandler(err);
     }
   }
 
-  async cancelFriendRequest({ senderId, receiverId }: { senderId: string; receiverId: string }) {
+  async refuseFriendRequest({ senderId, receiverId }: { senderId: string; receiverId: string }) {
     try {
       const updateSender = prisma.user.update({
         where: { id: senderId },
         data: { outcomingRequests: { disconnect: { id: receiverId } } },
       });
+
       const updateReceiver = prisma.user.update({
         where: { id: receiverId },
         data: { incomingRequests: { disconnect: { id: senderId } } },
       });
+
       await prisma.$transaction([updateSender, updateReceiver]);
     } catch (err) {
       prismaErrorHandler(err);
@@ -121,6 +147,7 @@ class UsersService {
           friendOf: { disconnect: { id: userFriendId } },
         },
       });
+
       const updateFriend = prisma.user.update({
         where: { id: userFriendId },
         data: {
@@ -128,6 +155,7 @@ class UsersService {
           friendOf: { disconnect: { id: userId } },
         },
       });
+
       await prisma.$transaction([updateUser, updateFriend]);
     } catch (err) {
       prismaErrorHandler(err);
