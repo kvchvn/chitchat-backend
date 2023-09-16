@@ -1,34 +1,30 @@
-import { userService } from '../services';
+import { usersService } from '../services';
 
 class UsersController {
-  async getAllUsersExceptOneself(userId: string) {
-    return await userService.getAllUsersExceptOneself(userId);
-  }
-
-  async getFriendsAndFriendRequests(userId: string) {
-    return await userService.getUserFriendsAndRequests(userId);
+  async getUsers(userId: string) {
+    return await usersService.getUsers(userId);
   }
 
   async sendFriendRequest({ senderId, receiverId }: { senderId: string; receiverId: string }) {
-    return await userService.sendFriendRequest({ senderId, receiverId });
+    return await usersService.sendFriendRequest({ senderId, receiverId });
   }
 
   async respondToFriendRequest({
-    isPositiveResponse,
+    isAccepted,
     senderId,
     receiverId,
   }: {
-    isPositiveResponse: boolean;
+    isAccepted: boolean;
     senderId: string;
     receiverId: string;
   }) {
-    return isPositiveResponse
-      ? await userService.acceptFriendRequest({ senderId, receiverId })
-      : await userService.cancelFriendRequest({ senderId, receiverId });
+    return isAccepted
+      ? await usersService.acceptFriendRequest({ senderId, receiverId })
+      : await usersService.refuseFriendRequest({ senderId, receiverId });
   }
 
   async removeFromFriends({ userId, userFriendId }: { userId: string; userFriendId: string }) {
-    return await userService.removeFromFriends({ userId, userFriendId });
+    return await usersService.removeFromFriends({ userId, userFriendId });
   }
 }
 
