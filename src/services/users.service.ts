@@ -34,7 +34,7 @@ class UsersService {
         },
       });
 
-      const [allUsersExceptOneself, friendsWithRequests] = await prisma.$transaction([
+      const [allUsersExceptOneself, friendsWithRequests] = await Promise.all([
         getAllUsersExceptOneselfPromise,
         getFriendsWithRequestsPromise,
       ]);
@@ -77,7 +77,7 @@ class UsersService {
         data: { incomingRequests: { connect: { id: senderId } } },
       });
 
-      return await prisma.$transaction([updateSender, updateReceiver]);
+      return await Promise.all([updateSender, updateReceiver]);
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -107,7 +107,7 @@ class UsersService {
         },
       });
 
-      await prisma.$transaction([updateSender, updateReceiver, createCommonChat]);
+      await Promise.all([updateSender, updateReceiver, createCommonChat]);
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -125,7 +125,7 @@ class UsersService {
         data: { incomingRequests: { disconnect: { id: senderId } } },
       });
 
-      await prisma.$transaction([updateSender, updateReceiver]);
+      await Promise.all([updateSender, updateReceiver]);
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -168,7 +168,7 @@ class UsersService {
         },
       });
 
-      await prisma.$transaction([updateUser, updateFriend, removeCommonChat]);
+      await Promise.all([updateUser, updateFriend, removeCommonChat]);
     } catch (err) {
       prismaErrorHandler(err);
     }
