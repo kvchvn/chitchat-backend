@@ -101,7 +101,13 @@ class UsersService {
         },
       });
 
-      await prisma.$transaction([updateSender, updateReceiver]);
+      const createCommonChat = prisma.chat.create({
+        data: {
+          users: { connect: [{ id: senderId }, { id: receiverId }] },
+        },
+      });
+
+      await prisma.$transaction([updateSender, updateReceiver, createCommonChat]);
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -156,7 +162,13 @@ class UsersService {
         },
       });
 
-      await prisma.$transaction([updateUser, updateFriend]);
+      const removeCommonChat = prisma.chat.deleteMany({
+        where: {
+          AND: [{ users: { some: { id: userId } } }, { users: { some: { id: userFriendId } } }],
+        },
+      });
+
+      await prisma.$transaction([updateUser, updateFriend, removeCommonChat]);
     } catch (err) {
       prismaErrorHandler(err);
     }
