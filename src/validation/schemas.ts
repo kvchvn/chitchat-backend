@@ -15,7 +15,7 @@ export const friendRequestSchema = z.object({
 
 export const friendResponseSchema = z.object({
   body: z.object({
-    isPositiveResponse: z.boolean(),
+    isAccepted: z.boolean(),
     senderId: z.string().cuid(),
     receiverId: z.string().cuid(),
   }),
