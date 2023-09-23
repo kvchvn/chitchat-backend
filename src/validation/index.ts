@@ -1,4 +1,5 @@
 export {
+  chatReceivingSchema,
   friendRemovingSchema,
   friendRequestSchema,
   friendResponseSchema,

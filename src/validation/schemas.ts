@@ -27,3 +27,5 @@ export const friendRemovingSchema = z.object({
     userFriendId: z.string().cuid(),
   }),
 });
+
+export const chatReceivingSchema = friendRemovingSchema;
