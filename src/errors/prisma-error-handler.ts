@@ -2,6 +2,7 @@ import { isPrismaKnownError } from '../types';
 import { BadRequestError } from './app-errors';
 
 export const prismaErrorHandler = (err: unknown) => {
+  console.error('prismaErrorHandler:\n', err);
   if (err instanceof BadRequestError) {
     throw err;
   }
