@@ -1,3 +1,4 @@
+import { Chat, Message } from '@prisma/client';
 import { UserCounts, UserRelevant } from './global';
 
 export type GetUsersResponse = {
@@ -13,3 +14,5 @@ export type ErrorResponse = {
   message: string;
   issues?: string[];
 };
+
+export type ChatWithMessages = Chat & { messages: Message[] };
