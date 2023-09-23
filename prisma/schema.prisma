@@ -34,12 +34,13 @@ model Session {
 }
 
 model Message {
-  id       String @id @default(cuid())
-  chatId   String
-  senderId String
-  content  String
-  chat     Chat   @relation(fields: [chatId], references: [id])
-  sender   User   @relation(fields: [senderId], references: [id])
+  id        String   @id @default(cuid())
+  chatId    String
+  senderId  String
+  content   String
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model Chat {
