@@ -48,6 +48,28 @@ class UsersService {
     }
   }
 
+  async getFriends(userId: string) {
+    try {
+      const user = await prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: {
+          friends: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
+        },
+      });
+
+      return user.friends;
+    } catch (err) {
+      prismaErrorHandler(err);
+    }
+  }
+
   async sendFriendRequest({ senderId, receiverId }: { senderId: string; receiverId: string }) {
     try {
       const isSenderAlreadySentOrGotRequest = Boolean(

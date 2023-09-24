@@ -17,6 +17,19 @@ class UsersController {
     }
   }
 
+  async getFriends(
+    req: Request<{ userId: string }>,
+    res: Response<GetUsersResponse['friends']>,
+    next: NextFunction
+  ) {
+    try {
+      const friends = await usersService.getFriends(req.params.userId);
+      res.status(StatusCodes.OK).send(friends);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async sendFriendRequest(
     req: Request<unknown, unknown, { senderId: string; receiverId: string }>,
     res: Response<void>,

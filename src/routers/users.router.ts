@@ -12,6 +12,8 @@ export const usersRouter = express.Router();
 
 usersRouter.get('/:userId', validateUserId(), usersController.getUsers);
 
+usersRouter.get('/:userId/friends', validateUserId(), usersController.getFriends);
+
 usersRouter.post(
   '/friend-request',
   validate(friendRequestSchema),
