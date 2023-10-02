@@ -1,6 +1,6 @@
 export {
   chatReceivingSchema,
-  friendRemovingSchema,
+  friendRemovalSchema,
   friendRequestSchema,
   friendResponseSchema,
   userIdSchema,
