@@ -1,2 +1,2 @@
-export { chatService } from './chat.service';
-export { usersService } from './users.service';
+export { chatService } from './chat-service';
+export { userService } from './user-service';

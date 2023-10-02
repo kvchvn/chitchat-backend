@@ -13,6 +13,8 @@ class ChatService {
         },
       });
 
+      console.log(chat);
+
       return chat[0];
     } catch (err) {
       prismaErrorHandler(err);

@@ -7,13 +7,20 @@ import { chatReceivingSchema } from '../validation';
 
 class ChatController {
   async getChat(
-    req: Request<unknown, unknown, z.infer<typeof chatReceivingSchema>['body']>,
+    req: Request<
+      z.infer<typeof chatReceivingSchema>['params'],
+      unknown,
+      unknown,
+      z.infer<typeof chatReceivingSchema>['query']
+    >,
     res: Response<ChatWithMessages | undefined>,
     next: NextFunction
   ) {
     try {
-      const { userId, userFriendId } = req.body;
-      const chat = await chatService.getChat({ userId, userFriendId });
+      const chat = await chatService.getChat({
+        userId: req.params.userId,
+        userFriendId: req.query.friendId,
+      });
 
       res.status(StatusCodes.OK).send(chat);
     } catch (err) {
