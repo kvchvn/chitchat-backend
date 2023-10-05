@@ -4,4 +4,4 @@ import { chatReceivingSchema, validate } from '../validation';
 
 export const chatRouter = express.Router();
 
-chatRouter.get('/', validate(chatReceivingSchema), chatController.getChat);
+chatRouter.get('/:userId', validate(chatReceivingSchema), chatController.getChat);
