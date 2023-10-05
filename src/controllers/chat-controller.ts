@@ -1,17 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import z from 'zod';
 import { chatService } from '../services';
-import { ChatWithMessages } from '../types';
+import { ChatWithMessages, ZodInfer } from '../types';
 import { chatReceivingSchema } from '../validation';
 
 class ChatController {
   async getChat(
     req: Request<
-      z.infer<typeof chatReceivingSchema>['params'],
+      ZodInfer<typeof chatReceivingSchema, 'params'>,
       unknown,
       unknown,
-      z.infer<typeof chatReceivingSchema>['query']
+      ZodInfer<typeof chatReceivingSchema, 'query'>
     >,
     res: Response<ChatWithMessages | undefined>,
     next: NextFunction
@@ -19,7 +18,7 @@ class ChatController {
     try {
       const chat = await chatService.getChat({
         userId: req.params.userId,
-        userFriendId: req.query.friendId,
+        friendId: req.query.friendId,
       });
 
       res.status(StatusCodes.OK).send(chat);
