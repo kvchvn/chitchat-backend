@@ -1,5 +1,5 @@
 import { prisma } from '../db';
-import { BadRequestError, NotFoundError, prismaErrorHandler } from '../errors';
+import { AppError, BadRequestError, NotFoundError, prismaErrorHandler } from '../errors';
 
 class UserService {
   async getUser(userId: string) {
@@ -19,6 +19,23 @@ class UserService {
       }
 
       return user;
+    } catch (err) {
+      prismaErrorHandler(err);
+    }
+  }
+
+  async getUserChats(userId: string) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { chats: true },
+      });
+
+      if (!user) {
+        throw new AppError(`Chats of user with { id: ${userId} } were not found.`);
+      }
+
+      return user.chats;
     } catch (err) {
       prismaErrorHandler(err);
     }
