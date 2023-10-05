@@ -7,4 +7,5 @@ export {
 } from './app-errors';
 export { errorHandler } from './error-handler';
 export { prismaErrorHandler } from './prisma-error-handler';
+export { socketErrorHandler } from './socket-error-handler';
 export { unsupportedRoutesHandler } from './unsupported-routes-handler';
