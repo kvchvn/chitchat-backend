@@ -2,18 +2,16 @@ import { prisma } from '../db';
 import { prismaErrorHandler } from '../errors';
 
 class ChatService {
-  async getChat({ userId, userFriendId }: { userId: string; userFriendId: string }) {
+  async getChat({ userId, friendId }: { userId: string; friendId: string }) {
     try {
       const chat = await prisma.chat.findMany({
         where: {
-          AND: [{ users: { some: { id: userId } } }, { users: { some: { id: userFriendId } } }],
+          AND: [{ users: { some: { id: userId } } }, { users: { some: { id: friendId } } }],
         },
         include: {
           messages: true,
         },
       });
-
-      console.log(chat);
 
       return chat[0];
     } catch (err) {
