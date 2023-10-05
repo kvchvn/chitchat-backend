@@ -37,3 +37,15 @@ export const friendRemovalSchema = z.object({
 });
 
 export const chatReceivingSchema = friendRemovalSchema;
+
+export const messageCreatingSchema = z.object({
+  params: z.object({
+    chatId: z.string().cuid(),
+  }),
+  query: z.object({
+    senderId: z.string().cuid(),
+  }),
+  body: z.object({
+    content: z.string(),
+  }),
+});
