@@ -1,5 +1,5 @@
 import { prisma } from '../db';
-import { AppError, BadRequestError, NotFoundError, prismaErrorHandler } from '../errors';
+import { BadRequestError, NotFoundError, prismaErrorHandler } from '../errors';
 
 class UserService {
   async getUser(id: string) {
@@ -15,7 +15,7 @@ class UserService {
       });
 
       if (!user) {
-        throw new NotFoundError('user', { id: userId });
+        throw new NotFoundError('user', { id });
       }
 
       return user;
@@ -27,12 +27,32 @@ class UserService {
   async getUserChats(id: string) {
     try {
       const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { chats: true },
+        where: { id },
+        select: {
+          chats: {
+            select: {
+              id: true,
+              messages: {
+                orderBy: { createdAt: 'desc' },
+                select: { content: true },
+                take: 1,
+              },
+              users: {
+                where: { id: { not: id } },
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  image: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!user) {
-        throw new AppError(`Chats of user with { id: ${userId} } were not found.`);
+        throw new NotFoundError(`chat`, { id });
       }
 
       return user.chats;
@@ -73,6 +93,10 @@ class UserService {
         },
       });
 
+      if (!getFriendsWithRequestsPromise) {
+        throw new NotFoundError('user', { id });
+      }
+
       const [allUsersExceptOneself, friendsWithRequests] = await Promise.all([
         getAllUsersExceptOneselfPromise,
         getFriendsWithRequestsPromise,
@@ -82,32 +106,6 @@ class UserService {
         allUsersExceptOneself,
         ...friendsWithRequests,
       };
-    } catch (err) {
-      prismaErrorHandler(err);
-    }
-  }
-
-  async getFriends(userId: string) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          friends: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              image: true,
-            },
-          },
-        },
-      });
-
-      if (!user) {
-        throw new NotFoundError('user', { id: userId });
-      }
-
-      return user.friends;
     } catch (err) {
       prismaErrorHandler(err);
     }
