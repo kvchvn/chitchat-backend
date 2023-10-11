@@ -1,4 +1,5 @@
 import { Server, Socket } from 'socket.io';
+import { chatService } from '../services';
 import { ClientToServerListenersArgs, CustomSocket, CustomSocketServer } from '../types';
 
 export class ChatListener {
@@ -10,15 +11,22 @@ export class ChatListener {
     this.socket = socket;
   }
 
-  onCreateMessage = ({
+  onCreateMessage = async ({
     chatId,
     senderId,
     content,
   }: ClientToServerListenersArgs['message:create']) => {
-    this.io.sockets.to(chatId).emit('message:create', { content, senderId });
+    try {
+      const message = await chatService.createMessage({ chatId, senderId, content });
+      this.io.sockets.to(chatId).emit('message:create', message ?? null);
+    } catch (err) {
+      console.log('err: ', err);
+    }
   };
 
-  registerChatListeners() {
-    this.socket.on('message:create', this.onCreateMessage);
-  }
+  registerChatListeners = () => {
+    this.socket.on('message:create', async (args) => {
+      await this.onCreateMessage(args);
+    });
+  };
 }
