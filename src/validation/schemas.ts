@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-export const userIdSchema = z.object({
+export const idSchema = z.object({
   params: z.object({
-    userId: z.string().cuid(),
+    id: z.string().cuid(),
   }),
 });
 

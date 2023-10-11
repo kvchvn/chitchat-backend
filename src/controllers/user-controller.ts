@@ -6,17 +6,17 @@ import {
   friendRemovalSchema,
   friendRequestSchema,
   friendResponseSchema,
-  userIdSchema,
+  idSchema,
 } from '../validation';
 
 class UserController {
   async getUser(
-    req: Request<ZodInfer<typeof userIdSchema, 'params'>>,
+    req: Request<ZodInfer<typeof idSchema, 'params'>>,
     res: Response<UserRelevant>,
     next: NextFunction
   ) {
     try {
-      const user = await userService.getUser(req.params.userId);
+      const user = await userService.getUser(req.params.id);
       res.status(StatusCodes.OK).send(user);
     } catch (err) {
       next(err);
@@ -24,12 +24,12 @@ class UserController {
   }
 
   async getUsers(
-    req: Request<ZodInfer<typeof userIdSchema, 'params'>>,
+    req: Request<ZodInfer<typeof idSchema, 'params'>>,
     res: Response<GetUsersResponse>,
     next: NextFunction
   ) {
     try {
-      const users = await userService.getUsers(req.params.userId);
+      const users = await userService.getUsers(req.params.id);
       res.status(StatusCodes.OK).send(users);
     } catch (err) {
       next(err);
@@ -37,7 +37,7 @@ class UserController {
   }
 
   async getFriends(
-    req: Request<ZodInfer<typeof userIdSchema, 'params'>>,
+    req: Request<ZodInfer<typeof idSchema, 'params'>>,
     res: Response<GetUsersResponse['friends']>,
     next: NextFunction
   ) {

@@ -2,10 +2,10 @@ import { prisma } from '../db';
 import { AppError, BadRequestError, NotFoundError, prismaErrorHandler } from '../errors';
 
 class UserService {
-  async getUser(userId: string) {
+  async getUser(id: string) {
     try {
       const user = await prisma.user.findUnique({
-        where: { id: userId },
+        where: { id },
         select: {
           id: true,
           name: true,
@@ -24,7 +24,7 @@ class UserService {
     }
   }
 
-  async getUserChats(userId: string) {
+  async getUserChats(id: string) {
     try {
       const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -41,7 +41,7 @@ class UserService {
     }
   }
 
-  async getUsers(userId: string) {
+  async getUsers(id: string) {
     try {
       const selectRequiredFields = {
         id: true,
@@ -51,21 +51,21 @@ class UserService {
       };
 
       const getAllUsersExceptOneselfPromise = prisma.user.findMany({
-        where: { id: { not: userId } },
+        where: { id: { not: id } },
         select: {
           ...selectRequiredFields,
           _count: {
             select: {
-              friends: { where: { id: userId } },
-              incomingRequests: { where: { id: userId } },
-              outcomingRequests: { where: { id: userId } },
+              friends: { where: { id } },
+              incomingRequests: { where: { id } },
+              outcomingRequests: { where: { id } },
             },
           },
         },
       });
 
       const getFriendsWithRequestsPromise = prisma.user.findUnique({
-        where: { id: userId },
+        where: { id },
         select: {
           friends: { select: selectRequiredFields },
           incomingRequests: { select: selectRequiredFields },

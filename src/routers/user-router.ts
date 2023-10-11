@@ -5,31 +5,31 @@ import {
   friendRequestSchema,
   friendResponseSchema,
   validate,
-  validateUserId,
+  validateId,
 } from '../validation';
 
 export const userRouter = express.Router();
 
-userRouter.get('/:userId', validateUserId(), userController.getUser);
+userRouter.get('/:id', validateId(), userController.getUser);
 
-userRouter.get('/:userId/all', validateUserId(), userController.getUsers);
+userRouter.get('/:id/all', validateId(), userController.getUsers);
 
-userRouter.get('/:userId/friends', validateUserId(), userController.getFriends);
+userRouter.get('/:id/chats', validateId(), userController.getUserChats);
 
 userRouter.post(
-  '/:userId/friend-request',
+  '/:id/friend-request',
   validate(friendRequestSchema),
   userController.sendFriendRequest
 );
 
 userRouter.post(
-  '/:userId/friend-response',
+  '/:id/friend-response',
   validate(friendResponseSchema),
   userController.respondToFriendRequest
 );
 
 userRouter.delete(
-  '/:userId/friend-removal',
+  '/:id/friend-removal',
   validate(friendRemovalSchema),
   userController.removeFromFriends
 );

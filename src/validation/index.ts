@@ -3,7 +3,7 @@ export {
   friendRemovalSchema,
   friendRequestSchema,
   friendResponseSchema,
+  idSchema,
   messageCreatingSchema,
-  userIdSchema,
 } from './schemas';
-export { validate, validateUserId } from './validator';
+export { validate, validateId } from './validator';
