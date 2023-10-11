@@ -1,11 +1,13 @@
+import { Message } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
+import { Nullable } from './global';
 
-export type SocketEvents<T extends Record<string, object>> = {
+export type SocketEvents<T extends Record<string, Nullable<object>>> = {
   [Property in keyof T]: (args: T[Property]) => void;
 };
 
 export type ServerToClientListenersArgs = {
-  'message:create': { content: string; senderId: string };
+  'message:create': Nullable<Message>;
 };
 
 export type ClientToServerListenersArgs = {

@@ -1,19 +1,22 @@
 import { prisma } from '../db';
-import { prismaErrorHandler } from '../errors';
+import { NotFoundError, prismaErrorHandler } from '../errors';
 
 class ChatService {
-  async getChat({ userId, friendId }: { userId: string; friendId: string }) {
+  async getChat(id: string) {
     try {
-      const chat = await prisma.chat.findMany({
-        where: {
-          AND: [{ users: { some: { id: userId } } }, { users: { some: { id: friendId } } }],
-        },
+      const chat = await prisma.chat.findUnique({
+        where: { id },
         include: {
           messages: true,
+          users: true,
         },
       });
 
-      return chat[0];
+      if (!chat) {
+        throw new NotFoundError('chat', { id });
+      }
+
+      return chat;
     } catch (err) {
       prismaErrorHandler(err);
     }

@@ -1,7 +1,9 @@
 import { User } from '@prisma/client';
 import { ZodType, z } from 'zod';
 
-export type Entities = 'user';
+export type Nullable<T> = T | null;
+
+export type Entities = 'user' | 'chat';
 
 export type UserCounts = {
   friends: number;

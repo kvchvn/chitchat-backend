@@ -1,7 +1,7 @@
 import express from 'express';
 import { chatController } from '../controllers/chat-controller';
-import { chatReceivingSchema, validate } from '../validation';
+import { validateId } from '../validation';
 
 export const chatRouter = express.Router();
 
-chatRouter.get('/:userId', validate(chatReceivingSchema), chatController.getChat);
+chatRouter.get('/:id', validateId(), chatController.getChat);
