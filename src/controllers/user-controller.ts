@@ -61,7 +61,7 @@ class UserController {
   ) {
     try {
       await userService.sendFriendRequest({
-        senderId: req.params.userId,
+        senderId: req.params.id,
         receiverId: req.query.receiverId,
       });
       res.sendStatus(StatusCodes.NO_CONTENT);
@@ -82,7 +82,7 @@ class UserController {
   ) {
     try {
       const payload = {
-        userId: req.params.userId,
+        userId: req.params.id,
         requestSenderId: req.query.requestSenderId,
       };
 
@@ -109,7 +109,7 @@ class UserController {
   ) {
     try {
       await userService.removeFromFriends({
-        userId: req.params.userId,
+        userId: req.params.id,
         friendId: req.query.friendId,
       });
       res.sendStatus(StatusCodes.NO_CONTENT);
