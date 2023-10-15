@@ -25,12 +25,17 @@ export class BaseSocketListener {
     console.log('Socket is disconnected: ', this.socket.id);
   };
 
+  onError = (err: Error) => {
+    console.log('SocketError!\n', JSON.stringify(err, null, 2));
+  };
+
   registerAllListeners = () => {
     console.log('Socket is connected: ', this.socket.id);
 
     // base events
     this.socket.onAny(this.onAnyEvent);
     this.socket.on('disconnect', this.onDisconnection);
+    this.socket.on('error', this.onError);
 
     //chat events
     this.chatListener.registerChatListeners();
