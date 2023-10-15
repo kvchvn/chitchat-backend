@@ -34,7 +34,10 @@ class UserService {
               id: true,
               messages: {
                 orderBy: { createdAt: 'desc' },
-                select: { content: true },
+                select: {
+                  content: true,
+                  senderId: true,
+                },
                 take: 1,
               },
               users: {
@@ -44,6 +47,11 @@ class UserService {
                   name: true,
                   email: true,
                   image: true,
+                },
+              },
+              _count: {
+                select: {
+                  messages: { where: { isSeen: false } },
                 },
               },
             },
