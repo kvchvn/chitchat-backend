@@ -24,9 +24,18 @@ export class ChatListener {
     }
   };
 
+  onReadMessage = async ({ chatId }: ClientToServerListenersArgs['message:read']) => {
+    try {
+      await chatService.readMessages({ chatId });
+      this.io.sockets.to(chatId).emit('message:read', { chatId });
+    } catch (err) {
+      console.log('err: ', err);
+    }
+  };
+
   registerChatListeners = () => {
-    this.socket.on('message:create', async (args) => {
-      await this.onCreateMessage(args);
+    this.socket.on('message:create', this.onCreateMessage);
+    this.socket.on('message:read', this.onReadMessage);
     });
   };
 }

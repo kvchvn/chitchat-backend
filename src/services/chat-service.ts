@@ -44,6 +44,24 @@ class ChatService {
       prismaErrorHandler(err);
     }
   }
+
+  async readMessages({ chatId }: { chatId: string }) {
+    try {
+      await prisma.chat.update({
+        where: { id: chatId },
+        data: {
+          messages: {
+            updateMany: {
+              where: { isSeen: false },
+              data: { isSeen: true },
+            },
+          },
+        },
+      });
+    } catch (err) {
+      prismaErrorHandler(err);
+    }
+  }
 }
 
 export const chatService = new ChatService();
