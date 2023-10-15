@@ -26,6 +26,19 @@ class ChatService {
     }
   }
 
+  async clearChat(id: string) {
+    try {
+      await prisma.chat.update({
+        where: { id },
+        data: {
+          messages: { deleteMany: {} },
+        },
+      });
+    } catch (err) {
+      prismaErrorHandler(err);
+    }
+  }
+
   async createMessage({
     chatId,
     senderId,

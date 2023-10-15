@@ -9,11 +9,13 @@ export type SocketEvents<T extends Record<string, Nullable<object>>> = {
 export type ServerToClientListenersArgs = {
   'message:create': Nullable<Message>;
   'message:read': { chatId: string };
+  'chat:clear': { chatId: string };
 };
 
 export type ClientToServerListenersArgs = {
   'message:create': { chatId: string; senderId: string; content: string };
   'message:read': { chatId: string };
+  'chat:clear': { chatId: string };
 };
 
 export type ServerToClientEvents = SocketEvents<ServerToClientListenersArgs>;

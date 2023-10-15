@@ -33,9 +33,18 @@ export class ChatListener {
     }
   };
 
+  onClearChat = async ({ chatId }: ClientToServerListenersArgs['chat:clear']) => {
+    try {
+      await chatService.clearChat(chatId);
+      this.io.sockets.to(chatId).emit('chat:clear', { chatId });
+    } catch (err) {
+      console.log('err: ', err);
+    }
+  };
+
   registerChatListeners = () => {
     this.socket.on('message:create', this.onCreateMessage);
     this.socket.on('message:read', this.onReadMessage);
-    });
+    this.socket.on('chat:clear', this.onClearChat);
   };
 }
