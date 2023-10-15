@@ -7,7 +7,11 @@ class ChatService {
       const chat = await prisma.chat.findUnique({
         where: { id },
         include: {
-          messages: true,
+          messages: {
+            orderBy: {
+              createdAt: 'asc',
+            },
+          },
           users: true,
         },
       });
