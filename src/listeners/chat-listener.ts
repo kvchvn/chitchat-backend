@@ -1,4 +1,5 @@
 import { Server, Socket } from 'socket.io';
+import { socketErrorHandler } from '../errors';
 import { chatService } from '../services';
 import { ClientToServerListenersArgs, CustomSocket, CustomSocketServer } from '../types';
 
@@ -20,7 +21,7 @@ export class ChatListener {
       const message = await chatService.createMessage({ chatId, senderId, content });
       this.io.sockets.to(chatId).emit('message:create', message ?? null);
     } catch (err) {
-      console.log('err: ', err);
+      socketErrorHandler(err);
     }
   };
 
@@ -29,7 +30,7 @@ export class ChatListener {
       await chatService.readMessages({ chatId });
       this.io.sockets.to(chatId).emit('message:read', { chatId });
     } catch (err) {
-      console.log('err: ', err);
+      socketErrorHandler(err);
     }
   };
 
@@ -38,7 +39,7 @@ export class ChatListener {
       await chatService.clearChat(chatId);
       this.io.sockets.to(chatId).emit('chat:clear', { chatId });
     } catch (err) {
-      console.log('err: ', err);
+      socketErrorHandler(err);
     }
   };
 

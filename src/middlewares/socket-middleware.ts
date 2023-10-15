@@ -1,6 +1,5 @@
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { socketErrorHandler } from '../errors';
 import { userService } from '../services';
 
 export const socketMiddleware = async (
@@ -24,6 +23,13 @@ export const socketMiddleware = async (
       next();
     }
   } catch (err) {
-    socketErrorHandler(err, next);
+    let message = "Error occurred in Socket's middleware: ";
+    if (err && typeof err === 'object' && 'message' in err) {
+      message += err.message;
+    } else {
+      message += '<no details>';
+    }
+    const extendedErr: ExtendedError = { name: 'SocketMiddlewareError', message };
+    next(extendedErr);
   }
 };
