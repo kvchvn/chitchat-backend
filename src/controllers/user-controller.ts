@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { userService } from '../services';
-import { ChatsWithLastMessage, UserRelevant, Users, ZodInfer } from '../types';
+import { ChatsRecord, UserRelevant, Users, ZodInfer } from '../types';
 import {
   friendRemovalSchema,
   friendRequestSchema,
@@ -38,11 +38,23 @@ class UserController {
 
   async getUserChats(
     req: Request<ZodInfer<typeof idSchema, 'params'>>,
-    res: Response<ChatsWithLastMessage>,
+    res: Response<ChatsRecord>,
     next: NextFunction
   ) {
     try {
-      const chats = await userService.getUserChats(req.params.id);
+      const chatsArray = await userService.getUserChats(req.params.id);
+      const chats: ChatsRecord = {};
+
+      if (chatsArray) {
+        chatsArray.forEach(({ id, messages, users, _count }) => {
+          chats[id] = {
+            users,
+            lastMessage: messages[0],
+            unseenMessagesCount: _count.messages,
+          };
+        });
+      }
+
       res.status(StatusCodes.OK).send(chats);
     } catch (err) {
       next(err);

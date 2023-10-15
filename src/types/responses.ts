@@ -17,6 +17,11 @@ export type ErrorResponse = {
 
 export type ExtendedChat = Chat & { messages: Message[] } & { users: UserRelevant[] };
 
-export type ChatsWithLastMessage = Array<
-  Chat & { messages: Pick<Message, 'content'>[] } & { users: UserRelevant[] }
+export type ChatsRecord = Record<
+  string,
+  {
+    lastMessage: Pick<Message, 'content' | 'senderId'> | undefined;
+    users: UserRelevant[];
+    unseenMessagesCount: number;
+  }
 >;
