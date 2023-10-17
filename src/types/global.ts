@@ -1,6 +1,9 @@
 import { User } from '@prisma/client';
+import { ZodType, z } from 'zod';
 
-export type Entities = 'user';
+export type Nullable<T> = T | null;
+
+export type Entities = 'user' | 'chat';
 
 export type UserCounts = {
   friends: number;
@@ -9,3 +12,5 @@ export type UserCounts = {
 };
 
 export type UserRelevant = Omit<User, 'emailVerified'>;
+
+export type ZodInfer<T extends ZodType, P extends 'params' | 'query' | 'body'> = z.infer<T>[P];

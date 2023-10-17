@@ -1,29 +1,51 @@
 import { z } from 'zod';
 
-export const userIdSchema = z.object({
+export const idSchema = z.object({
   params: z.object({
-    userId: z.string().cuid(),
+    id: z.string().cuid(),
   }),
 });
 
 export const friendRequestSchema = z.object({
-  body: z.object({
-    senderId: z.string().cuid(),
+  params: z.object({
+    id: z.string().cuid(),
+  }),
+  query: z.object({
     receiverId: z.string().cuid(),
   }),
 });
 
 export const friendResponseSchema = z.object({
+  params: z.object({
+    id: z.string().cuid(),
+  }),
   body: z.object({
-    isPositiveResponse: z.boolean(),
-    senderId: z.string().cuid(),
-    receiverId: z.string().cuid(),
+    isAccepted: z.boolean(),
+  }),
+  query: z.object({
+    requestSenderId: z.string().cuid(),
   }),
 });
 
-export const friendRemovingSchema = z.object({
+export const friendRemovalSchema = z.object({
+  params: z.object({
+    id: z.string().cuid(),
+  }),
+  query: z.object({
+    friendId: z.string().cuid(),
+  }),
+});
+
+export const chatReceivingSchema = friendRemovalSchema;
+
+export const messageCreatingSchema = z.object({
+  params: z.object({
+    chatId: z.string().cuid(),
+  }),
+  query: z.object({
+    senderId: z.string().cuid(),
+  }),
   body: z.object({
-    userId: z.string().cuid(),
-    userFriendId: z.string().cuid(),
+    content: z.string(),
   }),
 });

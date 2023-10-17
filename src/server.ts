@@ -4,19 +4,27 @@ dotenv.config();
 import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { errorHandler, unsupportedRoutesHandler } from './errors';
-import { usersRouter } from './routers';
+import { BaseSocketListener } from './listeners';
+import { socketMiddleware } from './middlewares';
+import { chatRouter, userRouter } from './routers';
+import { ClientToServerEvents, ServerToClientEvents } from './types';
 
 const PORT = Number(process.env.PORT) || 5000;
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
+const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_URL,
     credentials: true,
   },
+});
+
+io.use(socketMiddleware);
+io.on('connection', (socket) => {
+  new BaseSocketListener(io, socket).registerAllListeners();
 });
 
 app.use(express.json());
@@ -25,19 +33,8 @@ app.use(
     origin: process.env.CLIENT_URL,
   })
 );
-
-const onConnection = (socket: Socket) => {
-  console.log('Socket.io server is connected: ', socket.id);
-  // TODO: register handlers here
-
-  socket.on('disconnect', () => {
-    console.log('Socket is disconnected: ', socket.id);
-  });
-};
-
-io.on('connection', onConnection);
-
-app.use('/users', usersRouter);
+app.use('/user', userRouter);
+app.use('/chat', chatRouter);
 app.use('/', unsupportedRoutesHandler);
 app.use(errorHandler);
 

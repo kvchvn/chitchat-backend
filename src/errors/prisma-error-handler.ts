@@ -1,8 +1,9 @@
 import { isPrismaKnownError } from '../types';
-import { BadRequestError } from './app-errors';
+import { BadRequestError, NotFoundError } from './app-errors';
 
 export const prismaErrorHandler = (err: unknown) => {
-  if (err instanceof BadRequestError) {
+  console.error('prismaErrorHandler:\n', err);
+  if (err instanceof BadRequestError || err instanceof NotFoundError) {
     throw err;
   }
 

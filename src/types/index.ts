@@ -1,3 +1,11 @@
-export type { Entities, UserRelevant } from './global';
+export type { Entities, Nullable, UserRelevant, ZodInfer } from './global';
 export { isPrismaKnownError } from './guards';
-export { ErrorResponse, GetUsersResponse } from './responses';
+export { ChatsRecord, ErrorResponse, ExtendedChat, Users } from './responses';
+export type {
+  ClientToServerEvents,
+  ClientToServerListenersArgs,
+  CustomSocket,
+  CustomSocketServer,
+  ServerToClientEvents,
+  ServerToClientListenersArgs,
+} from './socket';

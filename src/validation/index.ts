@@ -1,7 +1,9 @@
 export {
-  friendRemovingSchema,
+  chatReceivingSchema,
+  friendRemovalSchema,
   friendRequestSchema,
   friendResponseSchema,
-  userIdSchema,
+  idSchema,
+  messageCreatingSchema,
 } from './schemas';
-export { validate, validateUserId } from './validator';
+export { validate, validateId } from './validator';

@@ -1,6 +1,7 @@
+import { Chat, Message } from '@prisma/client';
 import { UserCounts, UserRelevant } from './global';
 
-export type GetUsersResponse = {
+export type Users = {
   allUsersExceptOneself: (UserRelevant & { _count: UserCounts })[];
   friends?: UserRelevant[];
   incomingRequests?: UserRelevant[];
@@ -13,3 +14,14 @@ export type ErrorResponse = {
   message: string;
   issues?: string[];
 };
+
+export type ExtendedChat = Chat & { messages: Message[] } & { users: UserRelevant[] };
+
+export type ChatsRecord = Record<
+  string,
+  {
+    lastMessage: Pick<Message, 'content' | 'senderId'> | undefined;
+    users: UserRelevant[];
+    unseenMessagesCount: number;
+  }
+>;
