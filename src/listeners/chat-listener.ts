@@ -27,7 +27,7 @@ export class ChatListener {
 
   onReadMessage = async ({ chatId }: ClientToServerListenersArgs['message:read']) => {
     try {
-      await chatService.readMessages({ chatId });
+      await chatService.readMessages(chatId);
       this.io.sockets.to(chatId).emit('message:read', { chatId });
     } catch (err) {
       socketErrorHandler(err);
@@ -43,9 +43,41 @@ export class ChatListener {
     }
   };
 
+  onEditMessage = async ({
+    chatId,
+    messageId,
+    updatedContent,
+  }: ClientToServerListenersArgs['message:edit']) => {
+    try {
+      const updatedMessage = await chatService.editMessage({ id: messageId, updatedContent });
+
+      if (updatedMessage) {
+        this.io.sockets
+          .to(chatId)
+          .emit('message:edit', { messageId, content: updatedMessage.content });
+      }
+    } catch (err) {
+      socketErrorHandler(err);
+    }
+  };
+
+  onRemoveMessage = async ({
+    chatId,
+    messageId,
+  }: ClientToServerListenersArgs['message:remove']) => {
+    try {
+      await chatService.removeMessage(messageId);
+      this.io.sockets.to(chatId).emit('message:remove', { messageId });
+    } catch (err) {
+      socketErrorHandler(err);
+    }
+  };
+
   registerChatListeners = () => {
     this.socket.on('message:create', this.onCreateMessage);
     this.socket.on('message:read', this.onReadMessage);
     this.socket.on('chat:clear', this.onClearChat);
+    this.socket.on('message:edit', this.onEditMessage);
+    this.socket.on('message:remove', this.onRemoveMessage);
   };
 }
