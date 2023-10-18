@@ -42,6 +42,7 @@ model Message {
   sender    User     @relation(fields: [senderId], references: [id])
   createdAt DateTime @default(now())
   isSeen    Boolean  @default(false)
+  isEdited  Boolean  @default(false)
 }
 
 model Chat {
