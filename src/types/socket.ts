@@ -6,18 +6,19 @@ export type SocketEvents<T extends Record<string, Nullable<object>>> = {
   [Property in keyof T]: (args: T[Property]) => void;
 };
 
+
 export type ServerToClientListenersArgs = {
-  'message:create': Nullable<Message>;
-  'message:read': { chatId: string };
+  'chat:read': { chatId: string };
   'chat:clear': { chatId: string };
+  'message:create': Nullable<Message>;
   'message:edit': { messageId: string; content: Message['content'] };
   'message:remove': { messageId: string };
 };
 
 export type ClientToServerListenersArgs = {
-  'message:create': { chatId: string; senderId: string; content: string };
-  'message:read': { chatId: string };
+  'chat:read': { chatId: string };
   'chat:clear': { chatId: string };
+  'message:create': { chatId: string; senderId: string; content: string };
   'message:edit': { chatId: string; messageId: string; updatedContent: Message['content'] };
   'message:remove': { chatId: string; messageId: string };
 };

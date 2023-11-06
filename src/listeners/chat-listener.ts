@@ -1,9 +1,9 @@
 import { Server, Socket } from 'socket.io';
 import { socketErrorHandler } from '../errors';
 import { chatService } from '../services';
-import { ClientToServerListenersArgs, CustomSocket, CustomSocketServer } from '../types';
+import { ClientToServerListenersArgs, CustomSocket, CustomSocketServer, Listener } from '../types';
 
-export class ChatListener {
+export class ChatListener implements Listener {
   private io: CustomSocketServer;
   private socket: CustomSocket;
 
@@ -12,23 +12,10 @@ export class ChatListener {
     this.socket = socket;
   }
 
-  onCreateMessage = async ({
-    chatId,
-    senderId,
-    content,
-  }: ClientToServerListenersArgs['message:create']) => {
-    try {
-      const message = await chatService.createMessage({ chatId, senderId, content });
-      this.io.sockets.to(chatId).emit('message:create', message ?? null);
-    } catch (err) {
-      socketErrorHandler(err);
-    }
-  };
-
-  onReadMessage = async ({ chatId }: ClientToServerListenersArgs['message:read']) => {
+  onReadChat = async ({ chatId }: ClientToServerListenersArgs['chat:read']) => {
     try {
       await chatService.readMessages(chatId);
-      this.io.sockets.to(chatId).emit('message:read', { chatId });
+      this.io.sockets.to(chatId).emit('chat:read', { chatId });
     } catch (err) {
       socketErrorHandler(err);
     }
@@ -43,41 +30,8 @@ export class ChatListener {
     }
   };
 
-  onEditMessage = async ({
-    chatId,
-    messageId,
-    updatedContent,
-  }: ClientToServerListenersArgs['message:edit']) => {
-    try {
-      const updatedMessage = await chatService.editMessage({ id: messageId, updatedContent });
-
-      if (updatedMessage) {
-        this.io.sockets
-          .to(chatId)
-          .emit('message:edit', { messageId, content: updatedMessage.content });
-      }
-    } catch (err) {
-      socketErrorHandler(err);
-    }
-  };
-
-  onRemoveMessage = async ({
-    chatId,
-    messageId,
-  }: ClientToServerListenersArgs['message:remove']) => {
-    try {
-      await chatService.removeMessage(messageId);
-      this.io.sockets.to(chatId).emit('message:remove', { messageId });
-    } catch (err) {
-      socketErrorHandler(err);
-    }
-  };
-
-  registerChatListeners = () => {
-    this.socket.on('message:create', this.onCreateMessage);
-    this.socket.on('message:read', this.onReadMessage);
+  registerListeners = () => {
+    this.socket.on('chat:read', this.onReadChat);
     this.socket.on('chat:clear', this.onClearChat);
-    this.socket.on('message:edit', this.onEditMessage);
-    this.socket.on('message:remove', this.onRemoveMessage);
   };
 }

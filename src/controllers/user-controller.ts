@@ -50,7 +50,7 @@ class UserController {
           chats[id] = {
             users,
             lastMessage: messages[0],
-            unseenMessagesCount: _count.messages,
+            unreadMessagesCount: _count.messages,
           };
         });
       }

@@ -51,7 +51,7 @@ class UserService {
               },
               _count: {
                 select: {
-                  messages: { where: { isSeen: false } },
+                  messages: { where: { isRead: false } },
                 },
               },
             },

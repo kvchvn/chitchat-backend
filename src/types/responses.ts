@@ -22,6 +22,6 @@ export type ChatsRecord = Record<
   {
     lastMessage: Pick<Message, 'content' | 'senderId'> | undefined;
     users: UserRelevant[];
-    unseenMessagesCount: number;
+    unreadMessagesCount: number;
   }
 >;

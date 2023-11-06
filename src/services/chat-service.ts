@@ -39,25 +39,6 @@ class ChatService {
     }
   }
 
-  async createMessage({
-    chatId,
-    senderId,
-    content,
-  }: {
-    chatId: string;
-    senderId: string;
-    content: string;
-  }) {
-    try {
-      const message = await prisma.message.create({
-        data: { chatId, senderId, content },
-      });
-      return message;
-    } catch (err) {
-      prismaErrorHandler(err);
-    }
-  }
-
   async readMessages(chatId: string) {
     try {
       await prisma.chat.update({
@@ -65,36 +46,12 @@ class ChatService {
         data: {
           messages: {
             updateMany: {
-              where: { isSeen: false },
-              data: { isSeen: true },
+              where: { isRead: false },
+              data: { isRead: true },
             },
           },
         },
       });
-    } catch (err) {
-      prismaErrorHandler(err);
-    }
-  }
-
-  async editMessage({ id, updatedContent }: { id: string; updatedContent: string }) {
-    try {
-      const updatedMessage = await prisma.message.update({
-        where: { id },
-        data: {
-          content: updatedContent,
-          isEdited: true,
-        },
-      });
-
-      return updatedMessage;
-    } catch (err) {
-      prismaErrorHandler(err);
-    }
-  }
-
-  async removeMessage(id: string) {
-    try {
-      await prisma.message.delete({ where: { id } });
     } catch (err) {
       prismaErrorHandler(err);
     }
