@@ -43,6 +43,7 @@ model Message {
   createdAt DateTime @default(now())
   isSeen    Boolean  @default(false)
   isEdited  Boolean  @default(false)
+  isLiked   Boolean  @default(false)
 }
 
 model Chat {
