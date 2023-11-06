@@ -6,6 +6,9 @@ export type SocketEvents<T extends Record<string, Nullable<object>>> = {
   [Property in keyof T]: (args: T[Property]) => void;
 };
 
+export type Reactions = {
+  [Property in Extract<keyof Message, 'isLiked'>]: boolean;
+};
 
 export type ServerToClientListenersArgs = {
   'chat:read': { chatId: string };
@@ -13,6 +16,7 @@ export type ServerToClientListenersArgs = {
   'message:create': Nullable<Message>;
   'message:edit': { messageId: string; content: Message['content'] };
   'message:remove': { messageId: string };
+  'message:react': { messageId: string; reactions: Reactions };
 };
 
 export type ClientToServerListenersArgs = {
@@ -21,6 +25,7 @@ export type ClientToServerListenersArgs = {
   'message:create': { chatId: string; senderId: string; content: string };
   'message:edit': { chatId: string; messageId: string; updatedContent: Message['content'] };
   'message:remove': { chatId: string; messageId: string };
+  'message:react': { chatId: string; messageId: string; reactions: Reactions };
 };
 
 export type ServerToClientEvents = SocketEvents<ServerToClientListenersArgs>;
