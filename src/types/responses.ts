@@ -15,7 +15,9 @@ export type ErrorResponse = {
   issues?: string[];
 };
 
-export type ExtendedChat = Chat & { messages: Message[] } & { users: UserRelevant[] };
+export type ExtendedChat = Chat & { messages: Record<string, Message[]> } & {
+  users: UserRelevant[];
+};
 
 export type ChatsRecord = Record<
   string,

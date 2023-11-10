@@ -1,3 +1,4 @@
+import { Message } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { chatService } from '../services';
@@ -12,7 +13,23 @@ class ChatController {
   ) {
     try {
       const chat = await chatService.getChat(req.params.id);
-      res.status(StatusCodes.OK).send(chat);
+      const messagesByDate: Record<string, Message[]> = {};
+      if (chat) {
+        chat.messages.forEach((message) => {
+          // "+1" to get correct date
+          const month = message.createdAt.getMonth() + 1;
+          const date = message.createdAt.getDate();
+          const year = message.createdAt.getFullYear();
+          const key = `${month}/${date}/${year}`;
+
+          if (key in messagesByDate) {
+            messagesByDate[key]?.push(message);
+          } else {
+            messagesByDate[key] = [message];
+          }
+        });
+      }
+      res.status(StatusCodes.OK).send(chat ? { ...chat, messages: messagesByDate } : undefined);
     } catch (err) {
       next(err);
     }
