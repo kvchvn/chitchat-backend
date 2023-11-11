@@ -1,9 +1,9 @@
 import { Server, Socket } from 'socket.io';
 import { socketErrorHandler } from '../errors';
 import { chatService } from '../services';
-import { ClientToServerListenersArgs, CustomSocket, CustomSocketServer } from '../types';
+import { ClientToServerListenersArgs, CustomSocket, CustomSocketServer, Listener } from '../types';
 
-export class ChatListener {
+export class ChatListener implements Listener {
   private io: CustomSocketServer;
   private socket: CustomSocket;
 
@@ -12,23 +12,10 @@ export class ChatListener {
     this.socket = socket;
   }
 
-  onCreateMessage = async ({
-    chatId,
-    senderId,
-    content,
-  }: ClientToServerListenersArgs['message:create']) => {
+  onReadChat = async ({ chatId }: ClientToServerListenersArgs['chat:read']) => {
     try {
-      const message = await chatService.createMessage({ chatId, senderId, content });
-      this.io.sockets.to(chatId).emit('message:create', message ?? null);
-    } catch (err) {
-      socketErrorHandler(err);
-    }
-  };
-
-  onReadMessage = async ({ chatId }: ClientToServerListenersArgs['message:read']) => {
-    try {
-      await chatService.readMessages({ chatId });
-      this.io.sockets.to(chatId).emit('message:read', { chatId });
+      await chatService.readMessages(chatId);
+      this.io.sockets.to(chatId).emit('chat:read', { chatId });
     } catch (err) {
       socketErrorHandler(err);
     }
@@ -43,9 +30,8 @@ export class ChatListener {
     }
   };
 
-  registerChatListeners = () => {
-    this.socket.on('message:create', this.onCreateMessage);
-    this.socket.on('message:read', this.onReadMessage);
+  registerListeners = () => {
+    this.socket.on('chat:read', this.onReadChat);
     this.socket.on('chat:clear', this.onClearChat);
   };
 }

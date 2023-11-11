@@ -41,13 +41,16 @@ model Message {
   chat      Chat     @relation(fields: [chatId], references: [id])
   sender    User     @relation(fields: [senderId], references: [id])
   createdAt DateTime @default(now())
-  isSeen    Boolean  @default(false)
+  isRead    Boolean  @default(false)
+  isEdited  Boolean  @default(false)
+  isLiked   Boolean  @default(false)
 }
 
 model Chat {
-  id       String    @id @default(cuid())
-  messages Message[]
-  users    User[]
+  id         String    @id @default(cuid())
+  isDisabled Boolean   @default(false)
+  messages   Message[]
+  users      User[]
 }
 
 model User {

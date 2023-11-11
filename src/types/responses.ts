@@ -15,13 +15,16 @@ export type ErrorResponse = {
   issues?: string[];
 };
 
-export type ExtendedChat = Chat & { messages: Message[] } & { users: UserRelevant[] };
+export type ExtendedChat = Chat & { messages: Record<string, Message[]> } & {
+  users: UserRelevant[];
+};
 
 export type ChatsRecord = Record<
   string,
   {
-    lastMessage: Pick<Message, 'content' | 'senderId'> | undefined;
+    isDisabled: boolean;
+    lastMessage: Pick<Message, 'content' | 'senderId' | 'createdAt'> | undefined;
     users: UserRelevant[];
-    unseenMessagesCount: number;
+    unreadMessagesCount: number;
   }
 >;

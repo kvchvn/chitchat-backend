@@ -14,3 +14,7 @@ export type UserCounts = {
 export type UserRelevant = Omit<User, 'emailVerified'>;
 
 export type ZodInfer<T extends ZodType, P extends 'params' | 'query' | 'body'> = z.infer<T>[P];
+
+export interface Listener {
+  registerListeners: () => void;
+}
