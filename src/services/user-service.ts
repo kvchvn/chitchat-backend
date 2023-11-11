@@ -32,11 +32,13 @@ class UserService {
           chats: {
             select: {
               id: true,
+              isDisabled: true,
               messages: {
                 orderBy: { createdAt: 'desc' },
                 select: {
                   content: true,
                   senderId: true,
+                  createdAt: true,
                 },
                 take: 1,
               },
@@ -171,13 +173,27 @@ class UserService {
         },
       });
 
-      const createCommonChat = prisma.chat.create({
-        data: {
-          users: { connect: [{ id: requestSenderId }, { id: userId }] },
-        },
-      });
+      const createOrEnableCommonChat = async () => {
+        try {
+          await prisma.chat.findMany({
+            where: { users: { every: { id: { in: [userId, requestSenderId] } } } },
+          });
+          console.log('CHAT IS FOUND');
+          await prisma.chat.updateMany({
+            where: { users: { every: { id: { in: [userId, requestSenderId] } } } },
+            data: { isDisabled: false },
+          });
+        } catch {
+          console.log('CREATE CHAT');
+          await prisma.chat.create({
+            data: {
+              users: { connect: [{ id: requestSenderId }, { id: userId }] },
+            },
+          });
+        }
+      };
 
-      await Promise.all([updateSender, updateReceiver, createCommonChat]);
+      await Promise.all([updateSender, updateReceiver, createOrEnableCommonChat()]);
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -223,13 +239,14 @@ class UserService {
         },
       });
 
-      const removeCommonChat = prisma.chat.deleteMany({
+      const disableCommonChat = prisma.chat.updateMany({
         where: {
           AND: [{ users: { some: { id: userId } } }, { users: { some: { id: friendId } } }],
         },
+        data: { isDisabled: true },
       });
 
-      await Promise.all([updateUser, removeCommonChat]);
+      await Promise.all([updateUser, disableCommonChat]);
     } catch (err) {
       prismaErrorHandler(err);
     }

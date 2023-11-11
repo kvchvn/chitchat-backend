@@ -46,8 +46,9 @@ class UserController {
       const chats: ChatsRecord = {};
 
       if (chatsArray) {
-        chatsArray.forEach(({ id, messages, users, _count }) => {
+        chatsArray.forEach(({ id, isDisabled, messages, users, _count }) => {
           chats[id] = {
+            isDisabled,
             users,
             lastMessage: messages[0],
             unreadMessagesCount: _count.messages,

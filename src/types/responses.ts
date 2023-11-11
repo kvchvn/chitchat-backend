@@ -22,7 +22,8 @@ export type ExtendedChat = Chat & { messages: Record<string, Message[]> } & {
 export type ChatsRecord = Record<
   string,
   {
-    lastMessage: Pick<Message, 'content' | 'senderId'> | undefined;
+    isDisabled: boolean;
+    lastMessage: Pick<Message, 'content' | 'senderId' | 'createdAt'> | undefined;
     users: UserRelevant[];
     unreadMessagesCount: number;
   }
