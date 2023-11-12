@@ -1,5 +1,5 @@
 import { prisma } from '../db';
-import { prismaErrorHandler } from '../errors';
+import { BadRequestError, prismaErrorHandler } from '../errors';
 import { Reactions } from '../types';
 
 class MessageService {
@@ -13,10 +13,20 @@ class MessageService {
     content: string;
   }) {
     try {
-      const message = await prisma.message.create({
-        data: { chatId, senderId, content },
+      const chat = await prisma.chat.findUnique({
+        where: { id: chatId },
       });
-      return message;
+
+      if (chat && !chat.isDisabled) {
+        const message = await prisma.message.create({
+          data: { chatId, senderId, content },
+        });
+        return message;
+      } else {
+        throw new BadRequestError(
+          `Chat with ${{ chatId }} is disabled. Unable to create a message with ${{ content }}`
+        );
+      }
     } catch (err) {
       prismaErrorHandler(err);
     }
