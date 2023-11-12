@@ -2,16 +2,17 @@ import { prisma } from '../db';
 import { BadRequestError, NotFoundError, prismaErrorHandler } from '../errors';
 
 class UserService {
+  private usersSelect: { id: boolean; name: boolean; email: boolean; image: boolean };
+
+  constructor() {
+    this.usersSelect = { id: true, name: true, email: true, image: true };
+  }
+
   async getUser(id: string) {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
-        },
+        select: this.usersSelect,
       });
 
       if (!user) {
@@ -44,12 +45,7 @@ class UserService {
               },
               users: {
                 where: { id: { not: id } },
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  image: true,
-                },
+                select: this.usersSelect,
               },
               _count: {
                 select: {
@@ -71,51 +67,60 @@ class UserService {
     }
   }
 
-  async getUsers(id: string) {
+  async getAllUsers() {
     try {
-      const selectRequiredFields = {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-      };
+      return await prisma.user.findMany({ select: this.usersSelect });
+    } catch (err) {
+      prismaErrorHandler(err);
+    }
+  }
 
-      const getAllUsersExceptOneselfPromise = prisma.user.findMany({
-        where: { id: { not: id } },
-        select: {
-          ...selectRequiredFields,
-          _count: {
-            select: {
-              friends: { where: { id } },
-              incomingRequests: { where: { id } },
-              outcomingRequests: { where: { id } },
-            },
-          },
-        },
-      });
-
-      const getFriendsWithRequestsPromise = prisma.user.findUnique({
+  async getUserFriends(id: string) {
+    try {
+      const user = await prisma.user.findUnique({
         where: { id },
-        select: {
-          friends: { select: selectRequiredFields },
-          incomingRequests: { select: selectRequiredFields },
-          outcomingRequests: { select: selectRequiredFields },
-        },
+        select: { friends: { select: this.usersSelect } },
       });
 
-      if (!getFriendsWithRequestsPromise) {
+      if (user) {
+        return user.friends;
+      } else {
         throw new NotFoundError('user', { id });
       }
+    } catch (err) {
+      prismaErrorHandler(err);
+    }
+  }
 
-      const [allUsersExceptOneself, friendsWithRequests] = await Promise.all([
-        getAllUsersExceptOneselfPromise,
-        getFriendsWithRequestsPromise,
-      ]);
+  async getOutcomingRequests(id: string) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id },
+        select: { outcomingRequests: { select: this.usersSelect } },
+      });
 
-      return {
-        allUsersExceptOneself,
-        ...friendsWithRequests,
-      };
+      if (user) {
+        return user.outcomingRequests;
+      } else {
+        throw new NotFoundError('user', { id });
+      }
+    } catch (err) {
+      prismaErrorHandler(err);
+    }
+  }
+
+  async getIncomingRequests(id: string) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id },
+        select: { incomingRequests: { select: this.usersSelect } },
+      });
+
+      if (user) {
+        return user.incomingRequests;
+      } else {
+        throw new NotFoundError('user', { id });
+      }
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -123,7 +128,7 @@ class UserService {
 
   async sendFriendRequest({ senderId, receiverId }: { senderId: string; receiverId: string }) {
     try {
-      const isSenderAlreadySentOrGotRequest = Boolean(
+      const isRequestAlreadyExisted = Boolean(
         await prisma.user.findUnique({
           where: {
             id: senderId,
@@ -136,8 +141,10 @@ class UserService {
         })
       );
 
-      if (isSenderAlreadySentOrGotRequest) {
-        throw new BadRequestError('This friend request is already has been sent or accepted.');
+      if (isRequestAlreadyExisted) {
+        throw new BadRequestError(
+          'Friend request between the sender and the receiver exists (or has been accepted already)'
+        );
       }
 
       await prisma.user.update({
@@ -178,13 +185,11 @@ class UserService {
           await prisma.chat.findMany({
             where: { users: { every: { id: { in: [userId, requestSenderId] } } } },
           });
-          console.log('CHAT IS FOUND');
           await prisma.chat.updateMany({
             where: { users: { every: { id: { in: [userId, requestSenderId] } } } },
             data: { isDisabled: false },
           });
         } catch {
-          console.log('CREATE CHAT');
           await prisma.chat.create({
             data: {
               users: { connect: [{ id: requestSenderId }, { id: userId }] },
@@ -228,7 +233,7 @@ class UserService {
       );
 
       if (!isUserHasTheFriend) {
-        throw new BadRequestError("There isn't this user, or the user hasn't this friend.");
+        throw new NotFoundError('user', { id: userId, friends: [{ id: friendId }] });
       }
 
       const updateUser = prisma.user.update({

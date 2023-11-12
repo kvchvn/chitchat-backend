@@ -29,8 +29,19 @@ class UserController {
     next: NextFunction
   ) {
     try {
-      const users = await userService.getUsers(req.params.id);
-      res.status(StatusCodes.OK).send(users);
+      const allUsersPromise = userService.getAllUsers();
+      const friendsPromise = userService.getUserFriends(req.params.id);
+      const incomingRequestsPromise = userService.getIncomingRequests(req.params.id);
+      const outcomingRequestsPromise = userService.getOutcomingRequests(req.params.id);
+
+      const [allUsers, friends, incomingRequests, outcomingRequests] = await Promise.all([
+        allUsersPromise,
+        friendsPromise,
+        incomingRequestsPromise,
+        outcomingRequestsPromise,
+      ]);
+
+      res.status(StatusCodes.OK).send({ allUsers, friends, incomingRequests, outcomingRequests });
     } catch (err) {
       next(err);
     }

@@ -1,11 +1,10 @@
 import { Chat, Message } from '@prisma/client';
-import { UserCounts, UserRelevant } from './global';
+import { UserRelevant } from './global';
+
+type UserKeys = 'allUsers' | 'friends' | 'incomingRequests' | 'outcomingRequests';
 
 export type Users = {
-  allUsersExceptOneself: (UserRelevant & { _count: UserCounts })[];
-  friends?: UserRelevant[];
-  incomingRequests?: UserRelevant[];
-  outcomingRequests?: UserRelevant[];
+  [Property in UserKeys]: UserRelevant[] | undefined;
 };
 
 export type ErrorResponse = {
