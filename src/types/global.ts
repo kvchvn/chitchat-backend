@@ -11,7 +11,7 @@ export type UserCounts = {
   outcomingRequests: number;
 };
 
-export type UserRelevant = Omit<User, 'emailVerified'>;
+export type UserRelevant = Omit<User, 'emailVerified'> & { _count?: UserCounts };
 
 export type ZodInfer<T extends ZodType, P extends 'params' | 'query' | 'body'> = z.infer<T>[P];
 

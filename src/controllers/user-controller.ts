@@ -29,7 +29,7 @@ class UserController {
     next: NextFunction
   ) {
     try {
-      const allUsersPromise = userService.getAllUsers();
+      const allUsersPromise = userService.getAllUsers(req.params.id);
       const friendsPromise = userService.getUserFriends(req.params.id);
       const incomingRequestsPromise = userService.getIncomingRequests(req.params.id);
       const outcomingRequestsPromise = userService.getOutcomingRequests(req.params.id);
@@ -41,7 +41,9 @@ class UserController {
         outcomingRequestsPromise,
       ]);
 
-      res.status(StatusCodes.OK).send({ allUsers, friends, incomingRequests, outcomingRequests });
+      res
+        .status(StatusCodes.OK)
+        .send({ all: allUsers, friends, incomingRequests, outcomingRequests });
     } catch (err) {
       next(err);
     }

@@ -1,7 +1,7 @@
 import { Chat, Message } from '@prisma/client';
 import { UserRelevant } from './global';
 
-type UserKeys = 'allUsers' | 'friends' | 'incomingRequests' | 'outcomingRequests';
+type UserKeys = 'all' | 'friends' | 'incomingRequests' | 'outcomingRequests';
 
 export type Users = {
   [Property in UserKeys]: UserRelevant[] | undefined;

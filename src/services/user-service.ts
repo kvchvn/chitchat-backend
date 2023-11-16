@@ -67,9 +67,20 @@ class UserService {
     }
   }
 
-  async getAllUsers() {
+  async getAllUsers(id: string) {
     try {
-      return await prisma.user.findMany({ select: this.usersSelect });
+      return await prisma.user.findMany({
+        select: {
+          ...this.usersSelect,
+          _count: {
+            select: {
+              friends: { where: { id } },
+              incomingRequests: { where: { id } },
+              outcomingRequests: { where: { id } },
+            },
+          },
+        },
+      });
     } catch (err) {
       prismaErrorHandler(err);
     }
