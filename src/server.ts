@@ -33,8 +33,8 @@ app.use(
     origin: process.env.CLIENT_URL,
   })
 );
-app.use('/user', userRouter);
-app.use('/chat', chatRouter);
+app.use('/users', userRouter);
+app.use('/chats', chatRouter);
 app.use('/', unsupportedRoutesHandler);
 app.use(errorHandler);
 
