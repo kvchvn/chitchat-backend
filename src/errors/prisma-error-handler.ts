@@ -1,4 +1,4 @@
-import { isPrismaKnownError } from '../types';
+import { isPrismaKnownError } from '../types/guards';
 import { BadRequestError, NotFoundError } from './app-errors';
 
 export const prismaErrorHandler = (err: unknown) => {

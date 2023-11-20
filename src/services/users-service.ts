@@ -1,18 +1,21 @@
 import { prisma } from '../db';
-import { BadRequestError, NotFoundError, prismaErrorHandler } from '../errors';
+import { BadRequestError, NotFoundError } from '../errors/app-errors';
+import { prismaErrorHandler } from '../errors/prisma-error-handler';
+import { Nullable } from '../types/global';
+import { UsersCategories } from '../types/responses';
 
-class UserService {
-  private usersSelect: { id: boolean; name: boolean; email: boolean; image: boolean };
+class UsersService {
+  private userSelect: { id: boolean; name: boolean; email: boolean; image: boolean };
 
   constructor() {
-    this.usersSelect = { id: true, name: true, email: true, image: true };
+    this.userSelect = { id: true, name: true, email: true, image: true };
   }
 
   async getUser(id: string) {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
-        select: this.usersSelect,
+        select: this.userSelect,
       });
 
       if (!user) {
@@ -45,7 +48,7 @@ class UserService {
               },
               users: {
                 where: { id: { not: id } },
-                select: this.usersSelect,
+                select: this.userSelect,
               },
               _count: {
                 select: {
@@ -58,7 +61,7 @@ class UserService {
       });
 
       if (!user) {
-        throw new NotFoundError(`chat`, { id });
+        throw new NotFoundError(`user`, { id });
       }
 
       return user.chats;
@@ -67,11 +70,11 @@ class UserService {
     }
   }
 
-  async getAllUsers(id: string) {
+  async getAllUsersWithRelationsToCurrentUser(id: string) {
     try {
       return await prisma.user.findMany({
         select: {
-          ...this.usersSelect,
+          ...this.userSelect,
           _count: {
             select: {
               friends: { where: { id } },
@@ -86,11 +89,45 @@ class UserService {
     }
   }
 
+  async getCategoriesCounts(id: string) {
+    try {
+      const allUsersCountPromise = prisma.user.count();
+      const restCategoriesCountsPromise = prisma.user.findUnique({
+        where: { id },
+        select: {
+          _count: {
+            select: {
+              friends: true,
+              incomingRequests: true,
+              outcomingRequests: true,
+            },
+          },
+        },
+      });
+
+      const [allUsersCount, restCategoriesCount] = await Promise.all([
+        allUsersCountPromise,
+        restCategoriesCountsPromise,
+      ]);
+
+      const counts: { [Property in UsersCategories]: Nullable<number> } = {
+        all: allUsersCount,
+        friends: restCategoriesCount?._count.friends ?? null,
+        incomingRequests: restCategoriesCount?._count.incomingRequests ?? null,
+        outcomingRequests: restCategoriesCount?._count.outcomingRequests ?? null,
+      };
+
+      return counts;
+    } catch (err) {
+      prismaErrorHandler(err);
+    }
+  }
+
   async getUserFriends(id: string) {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
-        select: { friends: { select: this.usersSelect } },
+        select: { friends: { select: this.userSelect } },
       });
 
       if (user) {
@@ -107,7 +144,7 @@ class UserService {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
-        select: { outcomingRequests: { select: this.usersSelect } },
+        select: { outcomingRequests: { select: this.userSelect } },
       });
 
       if (user) {
@@ -124,7 +161,7 @@ class UserService {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
-        select: { incomingRequests: { select: this.usersSelect } },
+        select: { incomingRequests: { select: this.userSelect } },
       });
 
       if (user) {
@@ -139,7 +176,7 @@ class UserService {
 
   async sendFriendRequest({ senderId, receiverId }: { senderId: string; receiverId: string }) {
     try {
-      const isRequestAlreadyExisted = Boolean(
+      const isRequestAlreadySent = Boolean(
         await prisma.user.findUnique({
           where: {
             id: senderId,
@@ -152,16 +189,28 @@ class UserService {
         })
       );
 
-      if (isRequestAlreadyExisted) {
+      if (isRequestAlreadySent) {
         throw new BadRequestError(
           'Friend request between the sender and the receiver exists (or has been accepted already)'
         );
       }
 
-      await prisma.user.update({
+      const updatedSender = await prisma.user.update({
         where: { id: senderId },
         data: { outcomingRequests: { connect: { id: receiverId } } },
+        select: {
+          ...this.userSelect,
+          _count: {
+            select: {
+              friends: { where: { id: senderId } },
+              incomingRequests: { where: { id: senderId } },
+              outcomingRequests: { where: { id: senderId } },
+            },
+          },
+        },
       });
+
+      return updatedSender;
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -169,47 +218,52 @@ class UserService {
 
   async acceptFriendRequest({
     requestSenderId,
-    userId,
+    requestReceiverId,
   }: {
     requestSenderId: string;
-    userId: string;
+    requestReceiverId: string;
   }) {
     try {
-      const updateSender = prisma.user.update({
+      const updateRequestSenderPromise = prisma.user.update({
         where: { id: requestSenderId },
+        select: this.userSelect,
         data: {
-          outcomingRequests: { disconnect: { id: userId } },
-          friends: { connect: { id: userId } },
+          outcomingRequests: { disconnect: { id: requestReceiverId } },
+          friends: { connect: { id: requestReceiverId } },
         },
       });
 
-      const updateReceiver = prisma.user.update({
-        where: { id: userId },
+      const updateRequestReceiverPromise = prisma.user.update({
+        where: { id: requestReceiverId },
+        select: this.userSelect,
         data: {
           incomingRequests: { disconnect: { id: requestSenderId } },
           friends: { connect: { id: requestSenderId } },
         },
       });
 
-      const createOrEnableCommonChat = async () => {
-        try {
-          await prisma.chat.findMany({
-            where: { users: { every: { id: { in: [userId, requestSenderId] } } } },
-          });
-          await prisma.chat.updateMany({
-            where: { users: { every: { id: { in: [userId, requestSenderId] } } } },
-            data: { isDisabled: false },
-          });
-        } catch {
-          await prisma.chat.create({
-            data: {
-              users: { connect: [{ id: requestSenderId }, { id: userId }] },
-            },
-          });
-        }
-      };
+      const createOrEnableCommonChatPromise = prisma.chat
+        .updateMany({
+          where: { users: { every: { id: { in: [requestReceiverId, requestSenderId] } } } },
+          data: { isDisabled: false },
+        })
+        .then(({ count: commonChatCount }) => {
+          if (!commonChatCount) {
+            prisma.chat.create({
+              data: {
+                users: { connect: [{ id: requestSenderId }, { id: requestReceiverId }] },
+              },
+            });
+          }
+        });
 
-      await Promise.all([updateSender, updateReceiver, createOrEnableCommonChat()]);
+      const [_, updatedRequestReceiver] = await Promise.all([
+        updateRequestSenderPromise,
+        updateRequestReceiverPromise,
+        createOrEnableCommonChatPromise,
+      ]);
+
+      return updatedRequestReceiver;
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -217,16 +271,19 @@ class UserService {
 
   async refuseFriendRequest({
     requestSenderId,
-    userId,
+    requestReceiverId,
   }: {
     requestSenderId: string;
-    userId: string;
+    requestReceiverId: string;
   }) {
     try {
-      await prisma.user.update({
-        where: { id: requestSenderId },
-        data: { outcomingRequests: { disconnect: { id: userId } } },
+      const updatedRequestReceiver = await prisma.user.update({
+        where: { id: requestReceiverId },
+        select: this.userSelect,
+        data: { incomingRequests: { disconnect: { id: requestSenderId } } },
       });
+
+      return updatedRequestReceiver;
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -234,7 +291,7 @@ class UserService {
 
   async removeFromFriends({ userId, friendId }: { userId: string; friendId: string }) {
     try {
-      const isUserHasTheFriend = Boolean(
+      const hasUserTheFriend = Boolean(
         await prisma.user.findUnique({
           where: {
             id: userId,
@@ -243,30 +300,33 @@ class UserService {
         })
       );
 
-      if (!isUserHasTheFriend) {
+      if (!hasUserTheFriend) {
         throw new NotFoundError('user', { id: userId, friends: [{ id: friendId }] });
       }
 
-      const updateUser = prisma.user.update({
+      const updateUserPromise = prisma.user.update({
         where: { id: userId },
+        select: this.userSelect,
         data: {
           friends: { disconnect: { id: friendId } },
           friendOf: { disconnect: { id: friendId } },
         },
       });
 
-      const disableCommonChat = prisma.chat.updateMany({
+      const disableCommonChatPromise = prisma.chat.updateMany({
         where: {
           AND: [{ users: { some: { id: userId } } }, { users: { some: { id: friendId } } }],
         },
         data: { isDisabled: true },
       });
 
-      await Promise.all([updateUser, disableCommonChat]);
+      const [updatedUser] = await Promise.all([updateUserPromise, disableCommonChatPromise]);
+
+      return updatedUser;
     } catch (err) {
       prismaErrorHandler(err);
     }
   }
 }
 
-export const userService = new UserService();
+export const usersService = new UsersService();

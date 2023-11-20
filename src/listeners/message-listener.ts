@@ -1,13 +1,13 @@
-import { Server, Socket } from 'socket.io';
-import { socketErrorHandler } from '../errors';
-import { messageService } from '../services';
-import { ClientToServerListenersArgs, CustomSocket, CustomSocketServer, Listener } from '../types';
+import { socketErrorHandler } from '../errors/socket-error-handler';
+import { messagesService } from '../services/messages-service';
+import { Listener } from '../types/global';
+import { ClientToServerListenersArgs, CustomSocket, CustomSocketServer } from '../types/socket';
 
 export class MessageListener implements Listener {
   private io: CustomSocketServer;
   private socket: CustomSocket;
 
-  constructor(io: Server, socket: Socket) {
+  constructor(io: CustomSocketServer, socket: CustomSocket) {
     this.io = io;
     this.socket = socket;
   }
@@ -18,8 +18,11 @@ export class MessageListener implements Listener {
     content,
   }: ClientToServerListenersArgs['message:create']) => {
     try {
-      const message = await messageService.createMessage({ chatId, senderId, content });
-      this.io.sockets.to(chatId).emit('message:create', message ?? null);
+      const message = await messagesService.createMessage({ chatId, senderId, content });
+
+      if (message) {
+        this.io.sockets.to(chatId).emit('message:create', message);
+      }
     } catch (err) {
       socketErrorHandler(err);
     }
@@ -31,7 +34,7 @@ export class MessageListener implements Listener {
     updatedContent,
   }: ClientToServerListenersArgs['message:edit']) => {
     try {
-      const updatedMessage = await messageService.editMessage({ id: messageId, updatedContent });
+      const updatedMessage = await messagesService.editMessage({ id: messageId, updatedContent });
 
       if (updatedMessage) {
         this.io.sockets
@@ -48,7 +51,7 @@ export class MessageListener implements Listener {
     messageId,
   }: ClientToServerListenersArgs['message:remove']) => {
     try {
-      await messageService.removeMessage(messageId);
+      await messagesService.removeMessage(messageId);
       this.io.sockets.to(chatId).emit('message:remove', { messageId });
     } catch (err) {
       socketErrorHandler(err);
@@ -61,7 +64,7 @@ export class MessageListener implements Listener {
     reactions,
   }: ClientToServerListenersArgs['message:react']) => {
     try {
-      await messageService.reactToMessage({ id: messageId, reactions });
+      await messagesService.reactToMessage({ id: messageId, reactions });
       this.io.sockets.to(chatId).emit('message:react', { messageId, reactions });
     } catch (err) {
       socketErrorHandler(err);

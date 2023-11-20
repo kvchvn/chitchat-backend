@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
-import { ErrorResponse } from '../types';
+import { ErrorResponse } from '../types/responses';
 import { AppError } from './app-errors';
 
 export const errorHandler = (err: AppError, _req: Request, res: Response, _next: NextFunction) => {
   const errorResponse: ErrorResponse = {
-    ok: false,
+    data: null,
     status: StatusCodes.INTERNAL_SERVER_ERROR,
     message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
   };

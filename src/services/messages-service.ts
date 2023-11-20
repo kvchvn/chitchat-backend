@@ -1,8 +1,9 @@
 import { prisma } from '../db';
-import { BadRequestError, prismaErrorHandler } from '../errors';
-import { Reactions } from '../types';
+import { BadRequestError } from '../errors/app-errors';
+import { prismaErrorHandler } from '../errors/prisma-error-handler';
+import { Reactions } from '../types/socket';
 
-class MessageService {
+class MessagesService {
   async createMessage({
     chatId,
     senderId,
@@ -70,4 +71,4 @@ class MessageService {
   }
 }
 
-export const messageService = new MessageService();
+export const messagesService = new MessagesService();

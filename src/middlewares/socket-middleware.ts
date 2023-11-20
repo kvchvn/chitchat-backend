@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { userService } from '../services';
+import { usersService } from '../services/users-service';
 
 export const socketMiddleware = async (
   socket: Socket,
@@ -13,9 +13,9 @@ export const socketMiddleware = async (
       // @ts-ignore: Property 'userId' does not exist on type
       socket.userId = userId;
 
-      const userChats = await userService.getUserChats(userId);
+      const userChats = await usersService.getUserChats(userId);
       if (userChats) {
-        // join all of the user's chats
+        // join all the user's chats
         userChats.forEach((chat) => {
           socket.join(chat.id);
         });

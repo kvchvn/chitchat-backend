@@ -10,23 +10,34 @@ export type Reactions = {
   [Property in Extract<keyof Message, 'isLiked'>]: boolean;
 };
 
-export type ServerToClientListenersArgs = {
+type ServerToClientChatListenerArgs = {
   'chat:read': { chatId: string };
   'chat:clear': { chatId: string };
+};
+
+type ServerToClientMessageListenerArgs = {
   'message:create': Nullable<Message>;
   'message:edit': { messageId: string; content: Message['content'] };
   'message:remove': { messageId: string };
   'message:react': { messageId: string; reactions: Reactions };
 };
 
-export type ClientToServerListenersArgs = {
+type ClientToServerChatListenersArgs = {
   'chat:read': { chatId: string };
   'chat:clear': { chatId: string };
+};
+type ClientToServerMessageListenersArgs = {
   'message:create': { chatId: string; senderId: string; content: string };
   'message:edit': { chatId: string; messageId: string; updatedContent: Message['content'] };
   'message:remove': { chatId: string; messageId: string };
   'message:react': { chatId: string; messageId: string; reactions: Reactions };
 };
+
+export type ServerToClientListenersArgs = ServerToClientChatListenerArgs &
+  ServerToClientMessageListenerArgs;
+
+export type ClientToServerListenersArgs = ClientToServerChatListenersArgs &
+  ClientToServerMessageListenersArgs;
 
 export type ServerToClientEvents = SocketEvents<ServerToClientListenersArgs>;
 

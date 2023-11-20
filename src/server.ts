@@ -5,11 +5,13 @@ import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { errorHandler, unsupportedRoutesHandler } from './errors';
-import { BaseSocketListener } from './listeners';
-import { socketMiddleware } from './middlewares';
-import { chatRouter, userRouter } from './routers';
-import { ClientToServerEvents, ServerToClientEvents } from './types';
+import { errorHandler } from './errors/error-handler';
+import { unsupportedRoutesHandler } from './errors/unsupported-routes-handler';
+import { BaseSocketListener } from './listeners/base-socket-listener';
+import { socketMiddleware } from './middlewares/socket-middleware';
+import { chatsRouter } from './routers/chats-router';
+import { usersRouter } from './routers/users-router';
+import { ClientToServerEvents, ServerToClientEvents } from './types/socket';
 
 const PORT = Number(process.env.PORT) || 5000;
 
@@ -33,8 +35,8 @@ app.use(
     origin: process.env.CLIENT_URL,
   })
 );
-app.use('/users', userRouter);
-app.use('/chats', chatRouter);
+app.use('/users', usersRouter);
+app.use('/chats', chatsRouter);
 app.use('/', unsupportedRoutesHandler);
 app.use(errorHandler);
 

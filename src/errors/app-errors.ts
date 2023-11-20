@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { ZodIssue } from 'zod';
-import { Entities } from '../types';
+import { Entities } from '../types/global';
 
 export class AppError extends Error {
   constructor(message: string) {
