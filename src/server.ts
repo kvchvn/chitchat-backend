@@ -29,6 +29,10 @@ io.on('connection', (socket) => {
   new BaseSocketListener(io, socket).registerAllListeners();
 });
 
+httpServer.on('close', () => {
+  io.disconnectSockets();
+});
+
 app.use(express.json());
 app.use(
   cors({
@@ -42,4 +46,8 @@ app.use(errorHandler);
 
 httpServer.listen(PORT, () => {
   console.log('Server is running on port 5000');
+});
+
+process.on('exit', () => {
+  httpServer.close();
 });
