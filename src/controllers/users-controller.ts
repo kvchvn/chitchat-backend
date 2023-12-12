@@ -4,19 +4,14 @@ import { usersService } from '../services/users-service';
 import { ZodInfer } from '../types/global';
 import {
   AllUsersResponse,
-  FriendRequestResponse,
   UserChatsResponse,
   UserResponse,
+  UsersCategoriesCountResponse,
   UsersResponse,
 } from '../types/responses';
 import { addStatusToUserObject } from '../utils/add-status-to-user-object';
 import { convertChatsArrayToRecord } from '../utils/convert-chats-array-to-record';
-import {
-  friendRemovingSchema,
-  friendRequestResponseSchema,
-  friendRequestSchema,
-  idSchema,
-} from '../validation/schemas';
+import { idSchema } from '../validation/schemas';
 
 class UsersController {
   async getUser(
@@ -71,6 +66,22 @@ class UsersController {
     }
   }
 
+  async getUserCategoriesCount(
+    req: Request<ZodInfer<typeof idSchema, 'params'>>,
+    res: UsersCategoriesCountResponse,
+    next: NextFunction
+  ) {
+    try {
+      const categoriesCount = await usersService.getCategoriesCount(req.params.id);
+
+      if (categoriesCount) {
+        res.status(StatusCodes.OK).send({ data: categoriesCount });
+      }
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async getIncomingRequests(
     req: Request<ZodInfer<typeof idSchema, 'params'>>,
     res: UsersResponse,
@@ -112,109 +123,8 @@ class UsersController {
       const chatsArray = await usersService.getUserChats(req.params.id);
 
       if (chatsArray) {
-        const chats = convertChatsArrayToRecord(chatsArray);
-
+        const chats = convertChatsArrayToRecord({ chats: chatsArray, userId: req.params.id });
         res.status(StatusCodes.OK).send({ data: chats });
-      }
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  async sendFriendRequest(
-    req: Request<
-      ZodInfer<typeof friendRequestSchema, 'params'>,
-      unknown,
-      unknown,
-      ZodInfer<typeof friendRequestSchema, 'query'>
-    >,
-    res: UserResponse,
-    next: NextFunction
-  ) {
-    try {
-      const sender = await usersService.sendFriendRequest({
-        senderId: req.params.id,
-        receiverId: req.query.requestReceiverId,
-      });
-
-      if (sender) {
-        res.status(StatusCodes.OK).send({ data: sender });
-      }
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  async acceptFriendRequest(
-    req: Request<
-      ZodInfer<typeof friendRequestResponseSchema, 'params'>,
-      unknown,
-      unknown,
-      ZodInfer<typeof friendRequestResponseSchema, 'query'>
-    >,
-    res: FriendRequestResponse,
-    next: NextFunction
-  ) {
-    try {
-      const updatedRequestReceiver = await usersService.acceptFriendRequest({
-        requestReceiverId: req.params.id,
-        requestSenderId: req.query.requestSenderId,
-      });
-
-      if (updatedRequestReceiver) {
-        res
-          .status(StatusCodes.OK)
-          .send({ data: { requestReceiver: updatedRequestReceiver, isAccepted: true } });
-      }
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  async refuseFriendRequest(
-    req: Request<
-      ZodInfer<typeof friendRequestResponseSchema, 'params'>,
-      unknown,
-      unknown,
-      ZodInfer<typeof friendRequestResponseSchema, 'query'>
-    >,
-    res: FriendRequestResponse,
-    next: NextFunction
-  ) {
-    try {
-      const updatedRequestReceiver = await usersService.refuseFriendRequest({
-        requestReceiverId: req.params.id,
-        requestSenderId: req.query.requestSenderId,
-      });
-
-      if (updatedRequestReceiver) {
-        res
-          .status(StatusCodes.OK)
-          .send({ data: { requestReceiver: updatedRequestReceiver, isAccepted: false } });
-      }
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  async removeFromFriends(
-    req: Request<
-      ZodInfer<typeof friendRemovingSchema, 'params'>,
-      unknown,
-      unknown,
-      ZodInfer<typeof friendRemovingSchema, 'query'>
-    >,
-    res: UserResponse,
-    next: NextFunction
-  ) {
-    try {
-      const updatedUser = await usersService.removeFromFriends({
-        userId: req.params.id,
-        friendId: req.query.friendId,
-      });
-
-      if (updatedUser) {
-        res.sendStatus(StatusCodes.OK).send({ data: updatedUser });
       }
     } catch (err) {
       next(err);
