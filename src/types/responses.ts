@@ -20,6 +20,16 @@ export type UserRelevantWithStatus = UserRelevant & { status: UserStatus };
 
 export type UsersCategories = 'all' | 'friends' | 'incomingRequests' | 'outcomingRequests';
 
+export type UsersCategoriesCount = {
+  [Property in UsersCategories]: number;
+};
+
+export type UserRelevantWithCategoriesCount = UserRelevant & {
+  categoriesCount: {
+    [Property in Exclude<UsersCategories, 'all'>]: number;
+  };
+};
+
 export type ExtendedChat = Chat & {
   messages: Pick<Message, 'content' | 'senderId' | 'createdAt'>[];
   users: UserRelevant[];
@@ -62,16 +72,11 @@ export type AllUsersResponse = CustomResponse<UserRelevantWithStatus[]>;
 
 export type UsersResponse = CustomResponse<UserRelevant[]>;
 
-export type UsersCategoriesAmountResponse = {
-  [Property in UsersCategories]: number;
-};
+export type UsersCategoriesCountResponse = CustomResponse<UsersCategoriesCount>;
 
 export type UserChatsResponse = CustomResponse<ChatsRecord>;
 
-export type FriendRequestResponse = CustomResponse<{
-  requestReceiver: UserRelevant;
-  isAccepted: boolean;
-}>;
+export type UserOperationResponse = CustomResponse<{ isOperationPerformed: boolean }>;
 
 // chats
 
