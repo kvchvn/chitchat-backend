@@ -5,10 +5,22 @@ import { Nullable } from '../types/global';
 import { UsersCategoriesCount } from '../types/responses';
 
 class UsersService {
-  private userSelect: { id: boolean; name: boolean; email: boolean; image: boolean };
+  private userSelect: {
+    id: boolean;
+    name: boolean;
+    email: boolean;
+    image: boolean;
+    sessions: { orderBy: { expires: 'desc' } };
+  };
 
   constructor() {
-    this.userSelect = { id: true, name: true, email: true, image: true };
+    this.userSelect = {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      sessions: { orderBy: { expires: 'desc' } },
+    };
   }
 
   async getUser(id: string) {
@@ -168,6 +180,34 @@ class UsersService {
       } else {
         throw new NotFoundError('user', { id });
       }
+    } catch (err) {
+      prismaErrorHandler(err);
+    }
+  }
+
+  async getUsersSessions(id: string) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id },
+        select: { sessions: true },
+      });
+
+      if (!user) {
+        throw new NotFoundError('user', { id });
+      }
+
+      return user.sessions;
+    } catch (err) {
+      prismaErrorHandler(err);
+    }
+  }
+
+  async removeUsersSessions({ userId, sessionIds }: { userId: string; sessionIds: string[] }) {
+    try {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { sessions: { deleteMany: { id: { in: sessionIds } } } },
+      });
     } catch (err) {
       prismaErrorHandler(err);
     }
