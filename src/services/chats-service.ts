@@ -14,7 +14,12 @@ class ChatsService {
             },
           },
           users: {
-            select: { id: true, name: true, image: true },
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              sessions: { orderBy: { expires: 'desc' } },
+            },
           },
         },
       });
