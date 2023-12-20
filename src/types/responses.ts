@@ -1,4 +1,4 @@
-import { Chat, Message, User } from '@prisma/client';
+import { Chat, Message, Session, User } from '@prisma/client';
 import { Response } from 'express';
 
 export interface CustomResponse<T>
@@ -6,7 +6,7 @@ export interface CustomResponse<T>
     data: T;
   }> {}
 
-export type UserRelevant = Omit<User, 'emailVerified'>;
+export type UserRelevant = Omit<User, 'emailVerified'> & { sessions: Session[] };
 
 export enum UserStatus {
   Default = 'default',
