@@ -8,6 +8,7 @@ import { Server } from 'socket.io';
 import { errorHandler } from './errors/error-handler';
 import { unsupportedRoutesHandler } from './errors/unsupported-routes-handler';
 import { BaseSocketListener } from './listeners/base-socket-listener';
+import { sessionsCleaningMiddleware } from './middlewares/sessions-cleaning-middleware';
 import { socketMiddleware } from './middlewares/socket-middleware';
 import { chatsRouter } from './routers/chats-router';
 import { usersRouter } from './routers/users-router';
@@ -25,6 +26,8 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
 });
 
 io.use(socketMiddleware);
+// to clean expired user's sessions
+io.use(sessionsCleaningMiddleware);
 io.on('connection', (socket) => {
   new BaseSocketListener(io, socket).registerAllListeners();
 });
