@@ -51,3 +51,12 @@ export class ValidationError extends AppError {
     this.status = StatusCodes.UNPROCESSABLE_ENTITY;
   }
 }
+
+export class AuthorizationError extends AppError {
+  readonly status: number;
+
+  constructor() {
+    super('Session is invalid or expired.');
+    this.status = StatusCodes.UNAUTHORIZED;
+  }
+}
