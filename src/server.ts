@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
@@ -8,8 +9,10 @@ import { Server } from 'socket.io';
 import { errorHandler } from './errors/error-handler';
 import { unsupportedRoutesHandler } from './errors/unsupported-routes-handler';
 import { BaseSocketListener } from './listeners/base-socket-listener';
-import { sessionsCleaningMiddleware } from './middlewares/sessions-cleaning-middleware';
-import { socketMiddleware } from './middlewares/socket-middleware';
+import { authorization } from './middlewares/authorization';
+import { expiredSessionsCleaning } from './middlewares/socket/expired-sessions-cleaning';
+import { sessionChecking } from './middlewares/socket/session-checking';
+import { userChatsJoining } from './middlewares/socket/user-chats-joining';
 import { chatsRouter } from './routers/chats-router';
 import { usersRouter } from './routers/users-router';
 import { ClientToServerEvents, ServerToClientEvents } from './types/socket';
@@ -18,6 +21,8 @@ const PORT = Number(process.env.PORT) || 5000;
 
 const app = express();
 const httpServer = createServer(app);
+app.use(cookieParser());
+
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
     origin: process.env.CLIENT_URL,
@@ -25,9 +30,11 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   },
 });
 
-io.use(socketMiddleware);
-// to clean expired user's sessions
-io.use(sessionsCleaningMiddleware);
+// socket middlewares
+io.use(sessionChecking);
+io.use(userChatsJoining);
+io.use(expiredSessionsCleaning);
+
 io.on('connection', (socket) => {
   new BaseSocketListener(io, socket).registerAllListeners();
 });
@@ -36,17 +43,19 @@ httpServer.on('close', () => {
   io.disconnectSockets();
 });
 
+// http-server middlewares
 app.use(express.json());
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
+    credentials: true,
   })
 );
+app.use(authorization);
 app.use('/users', usersRouter);
 app.use('/chats', chatsRouter);
 app.use('/', unsupportedRoutesHandler);
 app.use(errorHandler);
-
 httpServer.listen(PORT, () => {
   console.log('Server is running on port 5000');
 });
