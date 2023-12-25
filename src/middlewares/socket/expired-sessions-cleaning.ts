@@ -1,8 +1,8 @@
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { usersService } from '../services/users-service';
+import { usersService } from '../../services/users-service';
 
-export const sessionsCleaningMiddleware = async (
+export const expiredSessionsCleaning = async (
   socket: Socket,
   next: (err?: ExtendedError | undefined) => void
 ) => {
@@ -32,7 +32,10 @@ export const sessionsCleaningMiddleware = async (
     } else {
       message += '<no details>';
     }
-    const extendedErr: ExtendedError = { name: 'SessionsCleaningMiddlewareError', message };
+    const extendedErr = {
+      name: 'SessionsCleaningMiddlewareError',
+      message,
+    } satisfies ExtendedError;
     next(extendedErr);
   }
 };

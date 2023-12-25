@@ -1,8 +1,9 @@
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { usersService } from '../services/users-service';
+import { NotFoundError } from '../../errors/app-errors';
+import { usersService } from '../../services/users-service';
 
-export const socketMiddleware = async (
+export const userChatsJoining = async (
   socket: Socket,
   next: (err?: ExtendedError | undefined) => void
 ) => {
@@ -21,15 +22,24 @@ export const socketMiddleware = async (
         });
       }
       next();
+    } else {
+      throw new NotFoundError(
+        'user',
+        { id: userId },
+        'userId was not passed from the client with handshake.'
+      );
     }
   } catch (err) {
-    let message = "Error occurred in Socket's middleware: ";
+    let message = 'Error occurred in userChatsJoining middleware: ';
     if (err && typeof err === 'object' && 'message' in err) {
       message += err.message;
     } else {
       message += '<no details>';
     }
-    const extendedErr: ExtendedError = { name: 'SocketMiddlewareError', message };
+    const extendedErr = {
+      name: 'UserChatsJoiningMiddlewareError',
+      message,
+    } satisfies ExtendedError;
     next(extendedErr);
   }
 };
