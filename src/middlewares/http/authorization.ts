@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { SESSION_TOKEN_COOKIE } from '../constants/global';
-import { AuthorizationError } from '../errors/app-errors';
-import { sessionService } from '../services/session-service';
+import { SESSION_TOKEN_COOKIE } from '../../constants/global';
+import { AuthorizationError } from '../../errors/app-errors';
+import { sessionService } from '../../services/session-service';
 
 export const authorization = async (req: Request, _res: Response, next: NextFunction) => {
   try {
