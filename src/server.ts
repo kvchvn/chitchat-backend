@@ -6,10 +6,10 @@ import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { errorHandler } from './errors/error-handler';
-import { unsupportedRoutesHandler } from './errors/unsupported-routes-handler';
 import { BaseSocketListener } from './listeners/base-socket-listener';
-import { authorization } from './middlewares/authorization';
+import { authorization } from './middlewares/http/authorization';
+import { errorHandling } from './middlewares/http/error-handling';
+import { unsupportedRoutesHandling } from './middlewares/http/unsupported-routes-handling';
 import { expiredSessionsCleaning } from './middlewares/socket/expired-sessions-cleaning';
 import { sessionChecking } from './middlewares/socket/session-checking';
 import { userChatsJoining } from './middlewares/socket/user-chats-joining';
@@ -54,8 +54,9 @@ app.use(
 app.use(authorization);
 app.use('/users', usersRouter);
 app.use('/chats', chatsRouter);
-app.use('/', unsupportedRoutesHandler);
-app.use(errorHandler);
+app.use('/', unsupportedRoutesHandling);
+app.use(errorHandling);
+
 httpServer.listen(PORT, () => {
   console.log('Server is running on port 5000');
 });
