@@ -57,7 +57,7 @@ class MessagesService {
     }
   }
 
-  async reactToMessage({ id, reactions }: { id: string; reactions: Reactions }) {
+  async reactToMessage({ id, reactions }: { id: string; reactions: Partial<Reactions> }) {
     try {
       await prisma.message.update({
         where: { id },
