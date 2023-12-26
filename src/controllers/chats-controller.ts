@@ -4,7 +4,7 @@ import { chatsService } from '../services/chats-service';
 import { ZodInfer } from '../types/global';
 import { ChatResponse } from '../types/responses';
 import { aggregateMessagesByDateRecord } from '../utils/aggregate-messages-by-date-record';
-import { idSchema } from '../validation/schemas';
+import { idSchema } from '../validation/http/schemas';
 
 class ChatsController {
   async getChat(

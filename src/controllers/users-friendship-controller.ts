@@ -7,7 +7,7 @@ import {
   friendRemovingSchema,
   friendRequestResponseSchema,
   friendRequestSchema,
-} from '../validation/schemas';
+} from '../validation/http/schemas';
 
 class UsersFriendshipController {
   async sendFriendRequest(

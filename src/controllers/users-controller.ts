@@ -11,7 +11,7 @@ import {
 } from '../types/responses';
 import { addStatusToUserObject } from '../utils/add-status-to-user-object';
 import { convertChatsArrayToRecord } from '../utils/convert-chats-array-to-record';
-import { idSchema } from '../validation/schemas';
+import { idSchema } from '../validation/http/schemas';
 
 class UsersController {
   async getUser(

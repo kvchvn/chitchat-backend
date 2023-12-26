@@ -5,8 +5,8 @@ import {
   friendRemovingSchema,
   friendRequestResponseSchema,
   friendRequestSchema,
-} from '../validation/schemas';
-import { validate, validateId } from '../validation/validator';
+} from '../validation/http/schemas';
+import { validate, validateId } from '../validation/http/validator';
 
 export const usersRouter = express.Router();
 
