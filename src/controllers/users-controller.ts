@@ -15,7 +15,7 @@ import { idSchema } from '../validation/http/schemas';
 
 class UsersController {
   async getUser(
-    req: Request<ZodInfer<typeof idSchema, 'params'>>,
+    req: Request<ZodInfer<typeof idSchema>['params']>,
     res: UserResponse,
     next: NextFunction
   ) {
@@ -31,7 +31,7 @@ class UsersController {
   }
 
   async getAllUsers(
-    req: Request<ZodInfer<typeof idSchema, 'params'>>,
+    req: Request<ZodInfer<typeof idSchema>['params']>,
     res: AllUsersResponse,
     next: NextFunction
   ) {
@@ -51,7 +51,7 @@ class UsersController {
   }
 
   async getFriends(
-    req: Request<ZodInfer<typeof idSchema, 'params'>>,
+    req: Request<ZodInfer<typeof idSchema>['params']>,
     res: UsersResponse,
     next: NextFunction
   ) {
@@ -67,7 +67,7 @@ class UsersController {
   }
 
   async getUserCategoriesCount(
-    req: Request<ZodInfer<typeof idSchema, 'params'>>,
+    req: Request<ZodInfer<typeof idSchema>['params']>,
     res: UsersCategoriesCountResponse,
     next: NextFunction
   ) {
@@ -83,7 +83,7 @@ class UsersController {
   }
 
   async getIncomingRequests(
-    req: Request<ZodInfer<typeof idSchema, 'params'>>,
+    req: Request<ZodInfer<typeof idSchema>['params']>,
     res: UsersResponse,
     next: NextFunction
   ) {
@@ -99,7 +99,7 @@ class UsersController {
   }
 
   async getOutcomingRequests(
-    req: Request<ZodInfer<typeof idSchema, 'params'>>,
+    req: Request<ZodInfer<typeof idSchema>['params']>,
     res: UsersResponse,
     next: NextFunction
   ) {
@@ -115,7 +115,7 @@ class UsersController {
   }
 
   async getUserChats(
-    req: Request<ZodInfer<typeof idSchema, 'params'>>,
+    req: Request<ZodInfer<typeof idSchema>['params']>,
     res: UserChatsResponse,
     next: NextFunction
   ) {

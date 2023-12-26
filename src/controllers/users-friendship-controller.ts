@@ -12,10 +12,10 @@ import {
 class UsersFriendshipController {
   async sendFriendRequest(
     req: Request<
-      ZodInfer<typeof friendRequestSchema, 'params'>,
+      ZodInfer<typeof friendRequestSchema>['params'],
       unknown,
       unknown,
-      ZodInfer<typeof friendRequestSchema, 'query'>
+      ZodInfer<typeof friendRequestSchema>['query']
     >,
     res: UserOperationResponse,
     next: NextFunction
@@ -37,10 +37,10 @@ class UsersFriendshipController {
 
   async cancelFriendRequest(
     req: Request<
-      ZodInfer<typeof friendRequestSchema, 'params'>,
+      ZodInfer<typeof friendRequestSchema>['params'],
       unknown,
       unknown,
-      ZodInfer<typeof friendRequestSchema, 'query'>
+      ZodInfer<typeof friendRequestSchema>['query']
     >,
     res: UserOperationResponse,
     next: NextFunction
@@ -62,10 +62,10 @@ class UsersFriendshipController {
 
   async acceptFriendRequest(
     req: Request<
-      ZodInfer<typeof friendRequestResponseSchema, 'params'>,
+      ZodInfer<typeof friendRequestResponseSchema>['params'],
       unknown,
       unknown,
-      ZodInfer<typeof friendRequestResponseSchema, 'query'>
+      ZodInfer<typeof friendRequestResponseSchema>['query']
     >,
     res: UserOperationResponse,
     next: NextFunction
@@ -89,10 +89,10 @@ class UsersFriendshipController {
 
   async refuseFriendRequest(
     req: Request<
-      ZodInfer<typeof friendRequestResponseSchema, 'params'>,
+      ZodInfer<typeof friendRequestResponseSchema>['params'],
       unknown,
       unknown,
-      ZodInfer<typeof friendRequestResponseSchema, 'query'>
+      ZodInfer<typeof friendRequestResponseSchema>['query']
     >,
     res: UserOperationResponse,
     next: NextFunction
@@ -116,10 +116,10 @@ class UsersFriendshipController {
 
   async removeFromFriends(
     req: Request<
-      ZodInfer<typeof friendRemovingSchema, 'params'>,
+      ZodInfer<typeof friendRemovingSchema>['params'],
       unknown,
       unknown,
-      ZodInfer<typeof friendRemovingSchema, 'query'>
+      ZodInfer<typeof friendRemovingSchema>['query']
     >,
     res: UserOperationResponse,
     next: NextFunction

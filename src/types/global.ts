@@ -4,7 +4,7 @@ export type Nullable<T> = T | null;
 
 export type Entities = 'user' | 'chat' | 'session';
 
-export type ZodInfer<T extends ZodType, P extends 'params' | 'query' | 'body'> = z.infer<T>[P];
+export type ZodInfer<T extends ZodType> = z.infer<T>;
 
 export interface Listener {
   registerListeners: () => void;

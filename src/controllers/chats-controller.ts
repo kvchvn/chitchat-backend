@@ -8,7 +8,7 @@ import { idSchema } from '../validation/http/schemas';
 
 class ChatsController {
   async getChat(
-    req: Request<ZodInfer<typeof idSchema, 'params'>>,
+    req: Request<ZodInfer<typeof idSchema>['params']>,
     res: ChatResponse,
     next: NextFunction
   ) {
