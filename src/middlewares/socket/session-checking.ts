@@ -17,13 +17,15 @@ export const sessionChecking = async (
     }
   } catch (err) {
     let message = 'Error occurred in session checking middleware: ';
+
     if (err && typeof err === 'object' && 'message' in err) {
       message += err.message;
     } else {
       message += '<no details>';
     }
-    const extendedErr = { name: 'SessionCheckingMiddleware', message } satisfies ExtendedError;
-    console.log({ extendedErr });
+
+    const extendedErr = { name: 'SocketMiddlewareError', message } satisfies ExtendedError;
+
     next(extendedErr);
   }
 };

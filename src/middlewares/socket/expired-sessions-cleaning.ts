@@ -26,16 +26,16 @@ export const expiredSessionsCleaning = async (
     }
     next();
   } catch (err) {
-    let message = 'Error occurred in sessions cleaning middleware: ';
+    let message = 'Error occurred in expired sessions cleaning middleware: ';
+
     if (err && typeof err === 'object' && 'message' in err) {
       message += err.message;
     } else {
       message += '<no details>';
     }
-    const extendedErr = {
-      name: 'SessionsCleaningMiddlewareError',
-      message,
-    } satisfies ExtendedError;
+
+    const extendedErr = { name: 'SocketMiddlewareError', message } satisfies ExtendedError;
+
     next(extendedErr);
   }
 };

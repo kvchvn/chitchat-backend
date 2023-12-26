@@ -30,16 +30,16 @@ export const userChatsJoining = async (
       );
     }
   } catch (err) {
-    let message = 'Error occurred in userChatsJoining middleware: ';
+    let message = 'Error occurred in user chats joining middleware: ';
+
     if (err && typeof err === 'object' && 'message' in err) {
       message += err.message;
     } else {
       message += '<no details>';
     }
-    const extendedErr = {
-      name: 'UserChatsJoiningMiddlewareError',
-      message,
-    } satisfies ExtendedError;
+
+    const extendedErr = { name: 'SocketMiddlewareError', message } satisfies ExtendedError;
+
     next(extendedErr);
   }
 };
