@@ -1,6 +1,14 @@
 import { Message } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
-import { Nullable } from './global';
+import {
+  clearChatSchema,
+  createMessageSchema,
+  editMessageSchema,
+  reactToMessageSchema,
+  readChatSchema,
+  removeMessageSchema,
+} from '../validation/socket/schemas';
+import { Nullable, ZodInfer } from './global';
 
 export type SocketEvents<T extends Record<string, Nullable<object>>> = {
   [Property in keyof T]: (args: T[Property]) => void;
@@ -19,18 +27,19 @@ type ServerToClientMessageListenerArgs = {
   'message:create': Nullable<Message>;
   'message:edit': { messageId: string; content: Message['content'] };
   'message:remove': { messageId: string };
-  'message:react': { messageId: string; reactions: Reactions };
+  'message:react': { messageId: string; reactions: Partial<Reactions> };
 };
 
 type ClientToServerChatListenersArgs = {
-  'chat:read': { chatId: string };
-  'chat:clear': { chatId: string };
+  'chat:read': ZodInfer<typeof readChatSchema>;
+  'chat:clear': ZodInfer<typeof clearChatSchema>;
 };
+
 type ClientToServerMessageListenersArgs = {
-  'message:create': { chatId: string; senderId: string; content: string };
-  'message:edit': { chatId: string; messageId: string; updatedContent: Message['content'] };
-  'message:remove': { chatId: string; messageId: string };
-  'message:react': { chatId: string; messageId: string; reactions: Reactions };
+  'message:create': ZodInfer<typeof createMessageSchema>;
+  'message:edit': ZodInfer<typeof editMessageSchema>;
+  'message:remove': ZodInfer<typeof removeMessageSchema>;
+  'message:react': ZodInfer<typeof reactToMessageSchema>;
 };
 
 export type ServerToClientListenersArgs = ServerToClientChatListenerArgs &
