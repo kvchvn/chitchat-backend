@@ -11,41 +11,24 @@ export const friendRequestSchema = z.object({
     id: z.string().cuid(),
   }),
   query: z.object({
-    receiverId: z.string().cuid(),
+    requestReceiverId: z.string().cuid(),
   }),
 });
 
-export const friendResponseSchema = z.object({
+export const friendRequestResponseSchema = z.object({
   params: z.object({
     id: z.string().cuid(),
-  }),
-  body: z.object({
-    isAccepted: z.boolean(),
   }),
   query: z.object({
     requestSenderId: z.string().cuid(),
   }),
 });
 
-export const friendRemovalSchema = z.object({
+export const friendRemovingSchema = z.object({
   params: z.object({
     id: z.string().cuid(),
   }),
   query: z.object({
     friendId: z.string().cuid(),
-  }),
-});
-
-export const chatReceivingSchema = friendRemovalSchema;
-
-export const messageCreatingSchema = z.object({
-  params: z.object({
-    chatId: z.string().cuid(),
-  }),
-  query: z.object({
-    senderId: z.string().cuid(),
-  }),
-  body: z.object({
-    content: z.string(),
   }),
 });

@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { CustomSocket, CustomSocketServer } from '../types';
+import { CustomSocket, CustomSocketServer } from '../types/socket';
 import { ChatListener } from './chat-listener';
 import { MessageListener } from './message-listener';
 

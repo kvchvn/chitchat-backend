@@ -1,37 +1,45 @@
-import { Server, Socket } from 'socket.io';
-import { socketErrorHandler } from '../errors';
-import { messageService } from '../services';
-import { ClientToServerListenersArgs, CustomSocket, CustomSocketServer, Listener } from '../types';
+import { socketErrorHandler } from '../errors/socket-error-handler';
+import { messagesService } from '../services/messages-service';
+import { Listener } from '../types/global';
+import { ClientToServerListenersArgs, CustomSocket, CustomSocketServer } from '../types/socket';
+import {
+  createMessageSchema,
+  editMessageSchema,
+  reactToMessageSchema,
+  removeMessageSchema,
+} from '../validation/socket/schemas';
+import { validate } from '../validation/socket/validator';
 
 export class MessageListener implements Listener {
   private io: CustomSocketServer;
   private socket: CustomSocket;
 
-  constructor(io: Server, socket: Socket) {
+  constructor(io: CustomSocketServer, socket: CustomSocket) {
     this.io = io;
     this.socket = socket;
   }
 
-  onCreateMessage = async ({
-    chatId,
-    senderId,
-    content,
-  }: ClientToServerListenersArgs['message:create']) => {
+  onCreateMessage = async (payload: ClientToServerListenersArgs['message:create']) => {
     try {
-      const message = await messageService.createMessage({ chatId, senderId, content });
-      this.io.sockets.to(chatId).emit('message:create', message ?? null);
+      await validate(createMessageSchema, payload);
+
+      const message = await messagesService.createMessage(payload);
+
+      if (message) {
+        this.io.sockets.to(payload.chatId).emit('message:create', message);
+      }
     } catch (err) {
-      socketErrorHandler(err);
+      socketErrorHandler(err, this.socket);
     }
   };
 
-  onEditMessage = async ({
-    chatId,
-    messageId,
-    updatedContent,
-  }: ClientToServerListenersArgs['message:edit']) => {
+  onEditMessage = async (payload: ClientToServerListenersArgs['message:edit']) => {
     try {
-      const updatedMessage = await messageService.editMessage({ id: messageId, updatedContent });
+      await validate(editMessageSchema, payload);
+
+      const { chatId, messageId, updatedContent } = payload;
+
+      const updatedMessage = await messagesService.editMessage({ id: messageId, updatedContent });
 
       if (updatedMessage) {
         this.io.sockets
@@ -39,32 +47,31 @@ export class MessageListener implements Listener {
           .emit('message:edit', { messageId, content: updatedMessage.content });
       }
     } catch (err) {
-      socketErrorHandler(err);
+      socketErrorHandler(err, this.socket);
     }
   };
 
-  onRemoveMessage = async ({
-    chatId,
-    messageId,
-  }: ClientToServerListenersArgs['message:remove']) => {
+  onRemoveMessage = async (payload: ClientToServerListenersArgs['message:remove']) => {
     try {
-      await messageService.removeMessage(messageId);
-      this.io.sockets.to(chatId).emit('message:remove', { messageId });
+      await validate(removeMessageSchema, payload);
+
+      await messagesService.removeMessage(payload.messageId);
+      this.io.sockets.to(payload.chatId).emit('message:remove', { messageId: payload.messageId });
     } catch (err) {
-      socketErrorHandler(err);
+      socketErrorHandler(err, this.socket);
     }
   };
 
-  onReactToMessage = async ({
-    chatId,
-    messageId,
-    reactions,
-  }: ClientToServerListenersArgs['message:react']) => {
+  onReactToMessage = async (payload: ClientToServerListenersArgs['message:react']) => {
     try {
-      await messageService.reactToMessage({ id: messageId, reactions });
+      await validate(reactToMessageSchema, payload);
+
+      const { chatId, messageId, reactions } = payload;
+
+      await messagesService.reactToMessage({ id: messageId, reactions });
       this.io.sockets.to(chatId).emit('message:react', { messageId, reactions });
     } catch (err) {
-      socketErrorHandler(err);
+      socketErrorHandler(err, this.socket);
     }
   };
 

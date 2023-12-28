@@ -1,7 +1,8 @@
 import { prisma } from '../db';
-import { NotFoundError, prismaErrorHandler } from '../errors';
+import { NotFoundError } from '../errors/app-errors';
+import { prismaErrorHandler } from '../errors/prisma-error-handler';
 
-class ChatService {
+class ChatsService {
   async getChat(id: string) {
     try {
       const chat = await prisma.chat.findUnique({
@@ -12,7 +13,14 @@ class ChatService {
               createdAt: 'asc',
             },
           },
-          users: true,
+          users: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              sessions: { orderBy: { expires: 'desc' } },
+            },
+          },
         },
       });
 
@@ -58,4 +66,4 @@ class ChatService {
   }
 }
 
-export const chatService = new ChatService();
+export const chatsService = new ChatsService();

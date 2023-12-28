@@ -1,8 +1,9 @@
 import { prisma } from '../db';
-import { prismaErrorHandler } from '../errors';
-import { Reactions } from '../types';
+import { BadRequestError, NotFoundError } from '../errors/app-errors';
+import { prismaErrorHandler } from '../errors/prisma-error-handler';
+import { Reactions } from '../types/socket';
 
-class MessageService {
+class MessagesService {
   async createMessage({
     chatId,
     senderId,
@@ -13,9 +14,24 @@ class MessageService {
     content: string;
   }) {
     try {
+      const chat = await prisma.chat.findUnique({
+        where: { id: chatId },
+      });
+
+      if (!chat) {
+        throw new NotFoundError('chat', { id: chatId });
+      }
+
+      if (chat.isDisabled) {
+        throw new BadRequestError(
+          `Chat ${chatId} is disabled. Unable to create a message with content: ${content}`
+        );
+      }
+
       const message = await prisma.message.create({
         data: { chatId, senderId, content },
       });
+
       return message;
     } catch (err) {
       prismaErrorHandler(err);
@@ -46,7 +62,7 @@ class MessageService {
     }
   }
 
-  async reactToMessage({ id, reactions }: { id: string; reactions: Reactions }) {
+  async reactToMessage({ id, reactions }: { id: string; reactions: Partial<Reactions> }) {
     try {
       await prisma.message.update({
         where: { id },
@@ -60,4 +76,4 @@ class MessageService {
   }
 }
 
-export const messageService = new MessageService();
+export const messagesService = new MessagesService();

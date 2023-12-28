@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { ZodIssue } from 'zod';
-import { Entities } from '../types';
+import { Entities } from '../types/global';
 
 export class AppError extends Error {
   constructor(message: string) {
@@ -46,8 +46,17 @@ export class ValidationError extends AppError {
   readonly issues: string[];
 
   constructor(issues: ZodIssue[]) {
-    super('Validation Error');
+    super('Validation error.');
     this.issues = issues.map((issue) => `${issue.message} in ${issue.path.join('.')}`);
     this.status = StatusCodes.UNPROCESSABLE_ENTITY;
+  }
+}
+
+export class AuthorizationError extends AppError {
+  readonly status: number;
+
+  constructor() {
+    super('Session is invalid or expired.');
+    this.status = StatusCodes.UNAUTHORIZED;
   }
 }
