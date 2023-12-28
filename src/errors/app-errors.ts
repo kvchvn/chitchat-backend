@@ -46,7 +46,7 @@ export class ValidationError extends AppError {
   readonly issues: string[];
 
   constructor(issues: ZodIssue[]) {
-    super('Validation Error');
+    super('Validation error.');
     this.issues = issues.map((issue) => `${issue.message} in ${issue.path.join('.')}`);
     this.status = StatusCodes.UNPROCESSABLE_ENTITY;
   }
