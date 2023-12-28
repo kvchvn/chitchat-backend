@@ -101,6 +101,7 @@ class UsersService {
   async getCategoriesCount(id: string) {
     try {
       const allUsersCountPromise = prisma.user.count();
+
       const restCategoriesCountsPromise = prisma.user.findUnique({
         where: { id },
         select: {
@@ -141,11 +142,11 @@ class UsersService {
         select: { friends: { select: this.userSelect } },
       });
 
-      if (user) {
-        return user.friends;
-      } else {
+      if (!user) {
         throw new NotFoundError('user', { id });
       }
+
+      return user.friends;
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -158,11 +159,11 @@ class UsersService {
         select: { outcomingRequests: { select: this.userSelect } },
       });
 
-      if (user) {
-        return user.outcomingRequests;
-      } else {
+      if (!user) {
         throw new NotFoundError('user', { id });
       }
+
+      return user.outcomingRequests;
     } catch (err) {
       prismaErrorHandler(err);
     }
@@ -175,11 +176,11 @@ class UsersService {
         select: { incomingRequests: { select: this.userSelect } },
       });
 
-      if (user) {
-        return user.incomingRequests;
-      } else {
+      if (!user) {
         throw new NotFoundError('user', { id });
       }
+
+      return user.incomingRequests;
     } catch (err) {
       prismaErrorHandler(err);
     }

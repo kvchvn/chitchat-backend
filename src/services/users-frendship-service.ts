@@ -11,22 +11,23 @@ class UsersFriendshipService {
     requestReceiverId: string;
   }) {
     try {
-      const isRequestAlreadySent = Boolean(
-        await prisma.user.findUnique({
-          where: {
-            id: requestSenderId,
-            OR: [
-              { outcomingRequests: { some: { id: requestReceiverId } } },
-              { incomingRequests: { some: { id: requestReceiverId } } },
-              { friends: { some: { id: requestReceiverId } } },
-            ],
-          },
-        })
-      );
+      const existedFriendRequest = await prisma.user.findUnique({
+        where: {
+          id: requestSenderId,
+          OR: [
+            // if the sender already has sent request to the receiver ...
+            { outcomingRequests: { some: { id: requestReceiverId } } },
+            // ... or receiver has sent the request to the sender ...
+            { incomingRequests: { some: { id: requestReceiverId } } },
+            // ... or the sender and the receiver are friends
+            { friends: { some: { id: requestReceiverId } } },
+          ],
+        },
+      });
 
-      if (isRequestAlreadySent) {
+      if (existedFriendRequest) {
         throw new BadRequestError(
-          'Friend request between the sender and the receiver exists (or has been accepted already)'
+          'Friend request between the sender and the receiver exists (or has been accepted already).'
         );
       }
 
@@ -56,18 +57,16 @@ class UsersFriendshipService {
     requestReceiverId: string;
   }) {
     try {
-      const isRequestExisted = Boolean(
-        await prisma.user.findUnique({
-          where: {
-            id: requestSenderId,
-            outcomingRequests: { some: { id: requestReceiverId } },
-          },
-        })
-      );
+      const existedFriendRequest = await prisma.user.findUnique({
+        where: {
+          id: requestSenderId,
+          outcomingRequests: { some: { id: requestReceiverId } },
+        },
+      });
 
-      if (!isRequestExisted) {
+      if (!existedFriendRequest) {
         throw new BadRequestError(
-          `Friend request between the sender and the receiver doesn't exist`
+          "Friend request between the sender and the receiver doesn't exist."
         );
       }
 
@@ -129,6 +128,7 @@ class UsersFriendshipService {
           data: { isDisabled: false },
         })
         .then(({ count: commonChatCount }) => {
+          // if chat was not found
           if (!commonChatCount) {
             prisma.chat.create({
               data: {
@@ -179,16 +179,14 @@ class UsersFriendshipService {
 
   async removeFromFriends({ userId, friendId }: { userId: string; friendId: string }) {
     try {
-      const hasUserTheFriend = Boolean(
-        await prisma.user.findUnique({
-          where: {
-            id: userId,
-            friends: { some: { id: friendId } },
-          },
-        })
-      );
+      const friend = await prisma.user.findUnique({
+        where: {
+          id: userId,
+          friends: { some: { id: friendId } },
+        },
+      });
 
-      if (!hasUserTheFriend) {
+      if (!friend) {
         throw new NotFoundError('user', { id: userId, friends: [{ id: friendId }] });
       }
 

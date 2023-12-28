@@ -9,10 +9,10 @@ class SessionService {
         where: { sessionToken },
       });
 
-      const session = sessions[0];
+      const [session] = sessions;
 
       if (!session || sessions.length > 1) {
-        throw new NotFoundError('session', {}, 'Session is not found or/and allowed');
+        throw new NotFoundError('session', {}, 'Session is not found or not allowed.');
       }
 
       return session;

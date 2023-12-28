@@ -22,16 +22,17 @@ class MessagesService {
         throw new NotFoundError('chat', { id: chatId });
       }
 
-      if (!chat.isDisabled) {
-        const message = await prisma.message.create({
-          data: { chatId, senderId, content },
-        });
-        return message;
-      } else {
+      if (chat.isDisabled) {
         throw new BadRequestError(
           `Chat ${chatId} is disabled. Unable to create a message with content: ${content}`
         );
       }
+
+      const message = await prisma.message.create({
+        data: { chatId, senderId, content },
+      });
+
+      return message;
     } catch (err) {
       prismaErrorHandler(err);
     }
