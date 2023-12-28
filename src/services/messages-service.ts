@@ -1,5 +1,5 @@
 import { prisma } from '../db';
-import { BadRequestError } from '../errors/app-errors';
+import { BadRequestError, NotFoundError } from '../errors/app-errors';
 import { prismaErrorHandler } from '../errors/prisma-error-handler';
 import { Reactions } from '../types/socket';
 
@@ -18,14 +18,18 @@ class MessagesService {
         where: { id: chatId },
       });
 
-      if (chat && !chat.isDisabled) {
+      if (!chat) {
+        throw new NotFoundError('chat', { id: chatId });
+      }
+
+      if (!chat.isDisabled) {
         const message = await prisma.message.create({
           data: { chatId, senderId, content },
         });
         return message;
       } else {
         throw new BadRequestError(
-          `Chat with ${{ chatId }} is disabled. Unable to create a message with ${{ content }}`
+          `Chat ${chatId} is disabled. Unable to create a message with content: ${content}`
         );
       }
     } catch (err) {
