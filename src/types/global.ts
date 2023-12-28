@@ -9,3 +9,8 @@ export type ZodInfer<T extends ZodType> = z.infer<T>;
 export interface Listener {
   registerListeners: () => void;
 }
+
+export type ParsedError = {
+  status: number;
+  message: string;
+};

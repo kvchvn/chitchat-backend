@@ -8,7 +8,7 @@ import {
   readChatSchema,
   removeMessageSchema,
 } from '../validation/socket/schemas';
-import { Nullable, ZodInfer } from './global';
+import { Nullable, ParsedError, ZodInfer } from './global';
 
 export type SocketEvents<T extends Record<string, Nullable<object>>> = {
   [Property in keyof T]: (args: T[Property]) => void;
@@ -16,6 +16,10 @@ export type SocketEvents<T extends Record<string, Nullable<object>>> = {
 
 export type Reactions = {
   [Property in Extract<keyof Message, 'isLiked'>]: boolean;
+};
+
+type ServerToClientCommonListenerArgs = {
+  error: ParsedError;
 };
 
 type ServerToClientChatListenerArgs = {
@@ -42,7 +46,8 @@ type ClientToServerMessageListenersArgs = {
   'message:react': ZodInfer<typeof reactToMessageSchema>;
 };
 
-export type ServerToClientListenersArgs = ServerToClientChatListenerArgs &
+export type ServerToClientListenersArgs = ServerToClientCommonListenerArgs &
+  ServerToClientChatListenerArgs &
   ServerToClientMessageListenerArgs;
 
 export type ClientToServerListenersArgs = ClientToServerChatListenersArgs &
