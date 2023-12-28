@@ -29,7 +29,7 @@ export class MessageListener implements Listener {
         this.io.sockets.to(payload.chatId).emit('message:create', message);
       }
     } catch (err) {
-      socketErrorHandler(err);
+      socketErrorHandler(err, this.socket);
     }
   };
 
@@ -47,7 +47,7 @@ export class MessageListener implements Listener {
           .emit('message:edit', { messageId, content: updatedMessage.content });
       }
     } catch (err) {
-      socketErrorHandler(err);
+      socketErrorHandler(err, this.socket);
     }
   };
 
@@ -58,7 +58,7 @@ export class MessageListener implements Listener {
       await messagesService.removeMessage(payload.messageId);
       this.io.sockets.to(payload.chatId).emit('message:remove', { messageId: payload.messageId });
     } catch (err) {
-      socketErrorHandler(err);
+      socketErrorHandler(err, this.socket);
     }
   };
 
@@ -71,7 +71,7 @@ export class MessageListener implements Listener {
       await messagesService.reactToMessage({ id: messageId, reactions });
       this.io.sockets.to(chatId).emit('message:react', { messageId, reactions });
     } catch (err) {
-      socketErrorHandler(err);
+      socketErrorHandler(err, this.socket);
     }
   };
 

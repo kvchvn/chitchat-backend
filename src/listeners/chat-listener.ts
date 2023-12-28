@@ -21,7 +21,7 @@ export class ChatListener implements Listener {
       await chatsService.readMessages(chatId);
       this.io.sockets.to(chatId).emit('chat:read', { chatId });
     } catch (err) {
-      socketErrorHandler(err);
+      socketErrorHandler(err, this.socket);
     }
   };
 
@@ -32,7 +32,7 @@ export class ChatListener implements Listener {
       await chatsService.clearChat(chatId);
       this.io.sockets.to(chatId).emit('chat:clear', { chatId });
     } catch (err) {
-      socketErrorHandler(err);
+      socketErrorHandler(err, this.socket);
     }
   };
 
