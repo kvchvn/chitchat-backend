@@ -1,3 +1,4 @@
+import { MAX_MESSAGES_PER_CHAT } from '../constants/chats';
 import { prisma } from '../db';
 import { BadRequestError, NotFoundError } from '../errors/app-errors';
 import { prismaErrorHandler } from '../errors/prisma-error-handler';
@@ -16,6 +17,11 @@ class MessagesService {
     try {
       const chat = await prisma.chat.findUnique({
         where: { id: chatId },
+        select: {
+          isDisabled: true,
+          messages: { orderBy: { createdAt: 'asc' } },
+          _count: { select: { messages: true } },
+        },
       });
 
       if (!chat) {
@@ -27,12 +33,26 @@ class MessagesService {
           `Chat ${chatId} is disabled. Unable to create a message with content: ${content}`
         );
       }
+      console.log({ first: chat.messages[0] });
+      const firstMessageId = chat.messages[0]?.id;
 
-      const message = await prisma.message.create({
+      const removeTheFirstMessagePromise =
+        chat._count.messages >= MAX_MESSAGES_PER_CHAT && firstMessageId
+          ? prisma.message.delete({
+              where: { id: firstMessageId },
+            })
+          : Promise.resolve(null);
+
+      const createNewMessagePromise = prisma.message.create({
         data: { chatId, senderId, content },
       });
 
-      return message;
+      const [removedMessage, newMessage] = await Promise.all([
+        removeTheFirstMessagePromise,
+        createNewMessagePromise,
+      ]);
+
+      return { newMessage, removedMessage };
     } catch (err) {
       prismaErrorHandler(err);
     }

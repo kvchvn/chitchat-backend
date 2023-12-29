@@ -28,7 +28,7 @@ type ServerToClientChatListenerArgs = {
 };
 
 type ServerToClientMessageListenerArgs = {
-  'message:create': Nullable<Message>;
+  'message:create': { newMessage: Nullable<Message>; removedMessage: Nullable<Message> };
   'message:edit': { messageId: string; content: Message['content'] };
   'message:remove': { messageId: string };
   'message:react': { messageId: string; reactions: Partial<Reactions> };
