@@ -20,6 +20,7 @@ import { ClientToServerEvents, ServerToClientEvents } from './types/socket';
 const PORT = Number(process.env.PORT) || 5000;
 
 const app = express();
+
 const httpServer = createServer(app);
 app.use(cookieParser());
 
