@@ -78,6 +78,10 @@ export type UserChatsResponse = CustomResponse<ChatsRecord>;
 
 export type UserOperationResponse = CustomResponse<{ isOperationPerformed: boolean }>;
 
+export type UserOperationResponseWithAdditionalData<
+  AdditionalData extends Record<string, unknown>,
+> = CustomResponse<{ isOperationPerformed: boolean } & AdditionalData>;
+
 // chats
 
 export type ChatResponse = CustomResponse<ExtendedChatWithMessagesRecord>;

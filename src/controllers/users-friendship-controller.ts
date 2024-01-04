@@ -1,8 +1,8 @@
 import { NextFunction, Request } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { usersFriendshipService } from '../services/users-frendship-service';
-import { ZodInfer } from '../types/global';
-import { UserOperationResponse } from '../types/responses';
+import { Nullable, ZodInfer } from '../types/global';
+import { UserOperationResponse, UserOperationResponseWithAdditionalData } from '../types/responses';
 import {
   friendRemovingSchema,
   friendRequestResponseSchema,
@@ -67,20 +67,27 @@ class UsersFriendshipController {
       unknown,
       ZodInfer<typeof friendRequestResponseSchema>['query']
     >,
-    res: UserOperationResponse,
+    res: UserOperationResponseWithAdditionalData<{ chatId: Nullable<string> }>,
     next: NextFunction
   ) {
     try {
-      const updatedReceiver = await usersFriendshipService.acceptFriendRequest({
+      const operationResult = await usersFriendshipService.acceptFriendRequest({
         requestReceiverId: req.params.id,
         requestSenderId: req.query.requestSenderId,
       });
 
-      if (updatedReceiver) {
+      if (operationResult) {
+        const { updatedRequestReceiver, commonChat } = operationResult;
+
         const isRequestAccepted = Boolean(
-          updatedReceiver._count.friends && !updatedReceiver._count.incomingRequests
+          updatedRequestReceiver._count.friends && !updatedRequestReceiver._count.incomingRequests
         );
-        res.status(StatusCodes.OK).send({ data: { isOperationPerformed: isRequestAccepted } });
+
+        const commonChatId = commonChat && isRequestAccepted ? commonChat.id : null;
+
+        res
+          .status(StatusCodes.OK)
+          .send({ data: { isOperationPerformed: isRequestAccepted, chatId: commonChatId } });
       }
     } catch (err) {
       next(err);

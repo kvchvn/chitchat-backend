@@ -130,7 +130,7 @@ class UsersFriendshipService {
         .then(({ count: commonChatCount }) => {
           // if chat was not found
           if (!commonChatCount) {
-            prisma.chat.create({
+            return prisma.chat.create({
               data: {
                 users: { connect: [{ id: requestSenderId }, { id: requestReceiverId }] },
               },
@@ -138,13 +138,13 @@ class UsersFriendshipService {
           }
         });
 
-      const [_, updatedRequestReceiver] = await Promise.all([
+      const [_, updatedRequestReceiver, commonChat] = await Promise.all([
         updateRequestSenderPromise,
         updateRequestReceiverPromise,
         createOrEnableCommonChatPromise,
       ]);
 
-      return updatedRequestReceiver;
+      return { updatedRequestReceiver, commonChat };
     } catch (err) {
       prismaErrorHandler(err);
     }
