@@ -92,6 +92,7 @@ class UsersService {
             },
           },
         },
+        orderBy: { name: 'asc' },
       });
     } catch (err) {
       prismaErrorHandler(err);
@@ -139,7 +140,12 @@ class UsersService {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
-        select: { friends: { select: this.userSelect } },
+        select: {
+          friends: {
+            select: this.userSelect,
+            orderBy: { name: 'asc' },
+          },
+        },
       });
 
       if (!user) {
@@ -156,7 +162,12 @@ class UsersService {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
-        select: { outcomingRequests: { select: this.userSelect } },
+        select: {
+          outcomingRequests: {
+            select: this.userSelect,
+            orderBy: { name: 'asc' },
+          },
+        },
       });
 
       if (!user) {
@@ -173,7 +184,12 @@ class UsersService {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
-        select: { incomingRequests: { select: this.userSelect } },
+        select: {
+          incomingRequests: {
+            select: this.userSelect,
+            orderBy: { name: 'asc' },
+          },
+        },
       });
 
       if (!user) {
