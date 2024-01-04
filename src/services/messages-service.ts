@@ -33,7 +33,7 @@ class MessagesService {
           `Chat ${chatId} is disabled. Unable to create a message with content: ${content}`
         );
       }
-      console.log({ first: chat.messages[0] });
+
       const firstMessageId = chat.messages[0]?.id;
 
       const removeTheFirstMessagePromise =
