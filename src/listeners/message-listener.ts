@@ -24,11 +24,8 @@ export class MessageListener implements Listener {
       await validate(createMessageSchema, payload);
 
       const resultData = await messagesService.createMessage(payload);
-
       if (resultData && resultData.newMessage) {
-        const { newMessage, removedMessage } = resultData;
-
-        this.io.sockets.to(payload.chatId).emit('message:create', { newMessage, removedMessage });
+        this.io.sockets.to(payload.chatId).emit('message:create', resultData);
       }
     } catch (err) {
       socketErrorHandler(err, this.socket);
