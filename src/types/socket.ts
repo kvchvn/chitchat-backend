@@ -34,6 +34,10 @@ type ServerToClientMessageListenerArgs = {
   'message:react': { messageId: string; reactions: Partial<Reactions> };
 };
 
+type ClientToServerCommonListenerArgs = {
+  join: { room: string; friendId: string };
+};
+
 type ClientToServerChatListenersArgs = {
   'chat:read': ZodInfer<typeof readChatSchema>;
   'chat:clear': ZodInfer<typeof clearChatSchema>;
@@ -50,7 +54,8 @@ export type ServerToClientListenersArgs = ServerToClientCommonListenerArgs &
   ServerToClientChatListenerArgs &
   ServerToClientMessageListenerArgs;
 
-export type ClientToServerListenersArgs = ClientToServerChatListenersArgs &
+export type ClientToServerListenersArgs = ClientToServerCommonListenerArgs &
+  ClientToServerChatListenersArgs &
   ClientToServerMessageListenersArgs;
 
 export type ServerToClientEvents = SocketEvents<ServerToClientListenersArgs>;
