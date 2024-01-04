@@ -38,19 +38,19 @@ model Message {
   chatId    String
   senderId  String
   content   String
-  chat      Chat     @relation(fields: [chatId], references: [id])
-  sender    User     @relation(fields: [senderId], references: [id])
   createdAt DateTime @default(now())
-  isRead    Boolean  @default(false)
   isEdited  Boolean  @default(false)
   isLiked   Boolean  @default(false)
+  isRead    Boolean  @default(false)
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [id])
 }
 
 model Chat {
   id         String    @id @default(cuid())
   isDisabled Boolean   @default(false)
   messages   Message[]
-  users      User[]
+  users      User[]    @relation("ChatToUser")
 }
 
 model User {
@@ -62,7 +62,7 @@ model User {
   accounts          Account[]
   messages          Message[]
   sessions          Session[]
-  chats             Chat[]
+  chats             Chat[]    @relation("ChatToUser")
   friends           User[]    @relation("friendship")
   friendOf          User[]    @relation("friendship")
   incomingRequests  User[]    @relation("friendship_request")
