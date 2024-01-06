@@ -6,11 +6,13 @@ import {
   AllUsersResponse,
   UserChatsResponse,
   UserResponse,
+  UserUnreadChatsIdsResponse,
   UsersCategoriesCountResponse,
   UsersResponse,
 } from '../types/responses';
 import { addStatusToUserObject } from '../utils/add-status-to-user-object';
 import { convertChatsArrayToRecord } from '../utils/convert-chats-array-to-record';
+import { extractUnreadChatsIds } from '../utils/extract-unread-chats-ids';
 import { idSchema } from '../validation/http/schemas';
 
 class UsersController {
@@ -125,6 +127,23 @@ class UsersController {
       if (chatsArray) {
         const chats = convertChatsArrayToRecord({ chats: chatsArray, userId: req.params.id });
         res.status(StatusCodes.OK).send({ data: chats });
+      }
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getUsersUnreadChatsIds(
+    req: Request<ZodInfer<typeof idSchema>['params']>,
+    res: UserUnreadChatsIdsResponse,
+    next: NextFunction
+  ) {
+    try {
+      const chatsArray = await usersService.getUserChats(req.params.id);
+
+      if (chatsArray) {
+        const unreadChatIds = extractUnreadChatsIds({ chatsArray, userId: req.params.id });
+        res.status(StatusCodes.OK).send({ data: { ids: unreadChatIds } });
       }
     } catch (err) {
       next(err);

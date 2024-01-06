@@ -24,6 +24,8 @@ usersRouter.get('/:id/outcoming-requests', validateId(), usersController.getOutc
 
 usersRouter.get('/:id/chats', validateId(), usersController.getUserChats);
 
+usersRouter.get('/:id/unread-chats-ids', validateId(), usersController.getUsersUnreadChatsIds);
+
 usersRouter.post(
   '/:id/friend-request',
   validate(friendRequestSchema),

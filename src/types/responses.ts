@@ -46,6 +46,10 @@ export type ChatsRecord = Record<
   }
 >;
 
+export type UnreadChatsIds = {
+  ids: string[];
+};
+
 export type MessagesRecord = Record<string, Message[]>;
 
 export type ExtendedChatWithMessagesRecord = Chat & {
@@ -75,6 +79,8 @@ export type UsersResponse = CustomResponse<UserRelevant[]>;
 export type UsersCategoriesCountResponse = CustomResponse<UsersCategoriesCount>;
 
 export type UserChatsResponse = CustomResponse<ChatsRecord>;
+
+export type UserUnreadChatsIdsResponse = CustomResponse<UnreadChatsIds>;
 
 export type UserOperationResponse = CustomResponse<{ isOperationPerformed: boolean }>;
 
