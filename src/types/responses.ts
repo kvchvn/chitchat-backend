@@ -6,7 +6,7 @@ export interface CustomResponse<T>
     data: T;
   }> {}
 
-export type UserRelevant = Omit<User, 'emailVerified'> & { sessions: Session[] };
+export type UserRelevant = Omit<User, 'emailVerified'> & { sessions: Pick<Session, 'expires'>[] };
 
 export enum UserStatus {
   Default = 'default',

@@ -10,7 +10,7 @@ class UsersService {
     name: boolean;
     email: boolean;
     image: boolean;
-    sessions: { orderBy: { expires: 'desc' } };
+    sessions: { orderBy: { expires: 'desc' }; select: { expires: true } };
   };
 
   constructor() {
@@ -19,7 +19,7 @@ class UsersService {
       name: true,
       email: true,
       image: true,
-      sessions: { orderBy: { expires: 'desc' } },
+      sessions: { orderBy: { expires: 'desc' }, select: { expires: true } },
     };
   }
 
