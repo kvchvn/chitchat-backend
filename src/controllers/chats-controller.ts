@@ -25,7 +25,7 @@ class ChatsController {
             ...chat,
             users: usersRecord,
             messages: messagesByDate,
-        res.status(StatusCodes.OK).send({ data: { ...chat, messages: messagesByDate } });
+            messagesLength: chat._count.messages,
           },
         });
       }

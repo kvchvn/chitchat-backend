@@ -21,6 +21,7 @@ class ChatsService {
               sessions: { orderBy: { expires: 'desc' }, select: { expires: true } },
             },
           },
+          _count: { select: { messages: true } },
         },
       });
 
