@@ -18,7 +18,7 @@ class ChatsService {
               id: true,
               name: true,
               image: true,
-              sessions: { orderBy: { expires: 'desc' } },
+              sessions: { orderBy: { expires: 'desc' }, select: { expires: true } },
             },
           },
         },
